@@ -1,7 +1,11 @@
 
 class Dfa:
-    def __init__(self):
-        pass
+    def __init__(self, states, alphabet, transitions, start_state, accept_states):
+        self.states = states
+        self.alphabet = alphabet
+        self.transitions = transitions
+        self.start_state = start_state
+        self.accept_states = accept_states
 
     def is_empty(self):
         """
