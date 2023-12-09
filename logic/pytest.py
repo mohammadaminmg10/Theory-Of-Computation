@@ -89,5 +89,42 @@ class TestDfaMethods(unittest.TestCase):
 
         self.assertTrue(dfa_1.are_equivalent(dfa_2))
 
+
+        dfa_1 = Dfa( 
+            states=['P', 'R', 'Q'],
+            alphabet=['a', 'b'],
+            transitions={
+                ('P', 'a'): 'R',
+                ('P', 'b'): 'Q',
+                ('R', 'a'): 'Q',
+                ('R', 'b'): 'P',
+                ('Q', 'a'): 'Q',
+                ('Q', 'b'): 'Q'
+            },
+            start_state='P',
+            accept_states=['P']
+        )
+
+        dfa_2 = Dfa( 
+                    states=['A', 'B', 'C', 'D', 'E'],
+                    alphabet=['a', 'b'],
+                    transitions={
+                        ('A', 'a'): 'B',
+                        ('A', 'b'): 'D',
+                        ('B', 'a'): 'D',
+                        ('B', 'b'): 'C',
+                        ('C', 'a'): 'B',
+                        ('C', 'b'): 'E',
+                        ('D', 'a'): 'D',
+                        ('D', 'b'): 'D',
+                        ('E', 'a'): 'D',
+                        ('E', 'b'): 'D'
+                    },
+                    start_state='A',
+                    accept_states=['A', 'C']
+                )
+
+        self.assertTrue(dfa_1.are_equivalent(dfa_2))
+
 if __name__ == '__main__':
     unittest.main()
