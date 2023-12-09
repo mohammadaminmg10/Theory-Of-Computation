@@ -7,12 +7,19 @@ class Dfa:
         self.start_state = start_state
         self.accept_states = accept_states
 
-    def is_empty(self):
-        """
-        Q1
-        Checks whether the language of the DFA is empty or not.
-        :return: True if the language is empty, False otherwise.
-        """
+    
+    def is_empty_language(self):
+        if not self.accept_states:
+            return True
+
+        for state in self.states:
+            for symbol in self.alphabet:
+                if (state, symbol) in self.transitions:
+                    next_state = self.transitions[(state, symbol)]
+                    if next_state in self.accept_states:
+                        return False
+
+        return True
 
     def is_finite(self):
         """
