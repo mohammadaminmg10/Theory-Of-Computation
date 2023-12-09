@@ -44,6 +44,50 @@ class TestDfaMethods(unittest.TestCase):
         self.assertTrue(self.dfa.minimize().accepts_string('abab'))
         self.assertFalse(self.dfa.minimize().accepts_string('bbbb'))
 
+    def test_are_equivalent(self):
+        self.assertTrue(self.dfa.are_equivalent(self.dfa))
+        self.assertFalse(self.dfa.are_equivalent(Dfa(
+            states=['q0', 'q1'],
+            alphabet=['a', 'b'],
+            transitions={
+                ('q0', 'a'): 'q1',
+                ('q0', 'b'): 'q0',
+                ('q1', 'a'): 'q1',
+                ('q1', 'b'): 'q1'
+            },
+            start_state='q0',
+            accept_states=['q1']
+        )))
+
+        dfa_1 = Dfa( 
+            states=['q0', 'q1'],
+            alphabet=['0', '1'],
+            transitions={
+                ('q0', '0'): 'q0',
+                ('q0', '1'): 'q1',
+                ('q1', '0'): 'q0',
+                ('q1', '1'): 'q1'
+            },
+            start_state='q0',
+            accept_states=['q0']
+        )
+
+        dfa_2 = Dfa( 
+                    states=['q2', 'q3', 'q4'],
+                    alphabet=['0', '1'],
+                    transitions={
+                        ('q2', '0'): 'q3',
+                        ('q2', '1'): 'q4',
+                        ('q3', '0'): 'q3',
+                        ('q3', '1'): 'q4',
+                        ('q4', '0'): 'q2',
+                        ('q4', '1'): 'q4'
+                    },
+                    start_state='q2',
+                    accept_states=['q2', 'q3']
+                )
+
+        self.assertTrue(dfa_1.are_equivalent(dfa_2))
 
 if __name__ == '__main__':
     unittest.main()

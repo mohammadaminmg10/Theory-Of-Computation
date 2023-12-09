@@ -18,7 +18,6 @@ class Dfa:
                     next_state = self.transitions[(state, symbol)]
                     if next_state in self.accept_states:
                         return False
-
         return True
 
     def is_finite(self):
@@ -118,9 +117,17 @@ class Dfa:
             return self  # No minimization needed
 
     def are_equivalent(self, other_dfa):
-        """
-        Q5
-        Checks whether the current DFA is equivalent to another DFA.
-        :param other_dfa: The other DFA for comparison.
-        :return: True if the DFAs are equivalent, False otherwise.
-        """
+        
+        for dfa_1, dfa_2 in zip(self.start_state, other_dfa.start_state):
+            if (dfa_1 in self.accept_states and dfa_2 not in other_dfa.accept_states) or \
+                    (dfa_2 in other_dfa.accept_states and dfa_1 not in self.accept_states):
+                return False
+            for state_1, state_2 in zip(self.states, other_dfa.states):
+                for symbol_1, symbol_2 in zip(self.alphabet, other_dfa.alphabet):
+                    if ((state_1, symbol_1) in self.transitions) and ((state_2, symbol_2) in other_dfa.transitions):
+                        next_state_1 = self.transitions[(state_1, symbol_1)]
+                        next_state_2 = other_dfa.transitions[(state_2, symbol_2)]
+                        if (next_state_1 in self.accept_states and next_state_2 not in other_dfa.accept_states) or \
+                                (next_state_2 in other_dfa.accept_states and next_state_1 not in self.accept_states):
+                            return False
+            return True
