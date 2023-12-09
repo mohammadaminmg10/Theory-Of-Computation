@@ -4,7 +4,7 @@ from dfa import Dfa
 
 class TestDfaMethods(unittest.TestCase):
     def setUp(self):
-        self.dfa = Dfa( 
+        self.dfa = Dfa(
             states=['q0', 'q1', 'q2'],
             alphabet=['a', 'b'],
             transitions={
@@ -18,7 +18,6 @@ class TestDfaMethods(unittest.TestCase):
             start_state='q0',
             accept_states=['q2']
         )
-        
 
     def test_is_empty_language(self):
         self.assertFalse(self.dfa.is_empty_language())
@@ -59,7 +58,7 @@ class TestDfaMethods(unittest.TestCase):
             accept_states=['q1']
         )))
 
-        dfa_1 = Dfa( 
+        dfa_1 = Dfa(
             states=['q0', 'q1'],
             alphabet=['0', '1'],
             transitions={
@@ -72,25 +71,24 @@ class TestDfaMethods(unittest.TestCase):
             accept_states=['q0']
         )
 
-        dfa_2 = Dfa( 
-                    states=['q2', 'q3', 'q4'],
-                    alphabet=['0', '1'],
-                    transitions={
-                        ('q2', '0'): 'q3',
-                        ('q2', '1'): 'q4',
-                        ('q3', '0'): 'q3',
-                        ('q3', '1'): 'q4',
-                        ('q4', '0'): 'q2',
-                        ('q4', '1'): 'q4'
-                    },
-                    start_state='q2',
-                    accept_states=['q2', 'q3']
-                )
+        dfa_2 = Dfa(
+            states=['q2', 'q3', 'q4'],
+            alphabet=['0', '1'],
+            transitions={
+                ('q2', '0'): 'q3',
+                ('q2', '1'): 'q4',
+                ('q3', '0'): 'q3',
+                ('q3', '1'): 'q4',
+                ('q4', '0'): 'q2',
+                ('q4', '1'): 'q4'
+            },
+            start_state='q2',
+            accept_states=['q2', 'q3']
+        )
 
         self.assertTrue(dfa_1.are_equivalent(dfa_2))
 
-
-        dfa_1 = Dfa( 
+        dfa_1 = Dfa(
             states=['P', 'R', 'Q'],
             alphabet=['a', 'b'],
             transitions={
@@ -105,26 +103,27 @@ class TestDfaMethods(unittest.TestCase):
             accept_states=['P']
         )
 
-        dfa_2 = Dfa( 
-                    states=['A', 'B', 'C', 'D', 'E'],
-                    alphabet=['a', 'b'],
-                    transitions={
-                        ('A', 'a'): 'B',
-                        ('A', 'b'): 'D',
-                        ('B', 'a'): 'D',
-                        ('B', 'b'): 'C',
-                        ('C', 'a'): 'B',
-                        ('C', 'b'): 'E',
-                        ('D', 'a'): 'D',
-                        ('D', 'b'): 'D',
-                        ('E', 'a'): 'D',
-                        ('E', 'b'): 'D'
-                    },
-                    start_state='A',
-                    accept_states=['A', 'C']
-                )
+        dfa_2 = Dfa(
+            states=['A', 'B', 'C', 'D', 'E'],
+            alphabet=['a', 'b'],
+            transitions={
+                ('A', 'a'): 'B',
+                ('A', 'b'): 'D',
+                ('B', 'a'): 'D',
+                ('B', 'b'): 'C',
+                ('C', 'a'): 'B',
+                ('C', 'b'): 'E',
+                ('D', 'a'): 'D',
+                ('D', 'b'): 'D',
+                ('E', 'a'): 'D',
+                ('E', 'b'): 'D'
+            },
+            start_state='A',
+            accept_states=['A', 'C']
+        )
 
         self.assertTrue(dfa_1.are_equivalent(dfa_2))
+
 
 if __name__ == '__main__':
     unittest.main()
