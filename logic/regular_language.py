@@ -23,7 +23,7 @@ class RegularExpressionAnalyzer:
         """
 
     def to_dfa(self, expression):
-        #Q2
+        #Q3
         """
         Convert a regular expression to a DFA.
 
@@ -32,7 +32,7 @@ class RegularExpressionAnalyzer:
         """
 
     def compare_languages(self, expression1, expression2):
-        #Q3
+        #Q4
         """
         Compare two regular expressions to check if they generate the same language.
 
@@ -42,7 +42,7 @@ class RegularExpressionAnalyzer:
         """
 
     def language_relation(self, expression1, expression2):
-        #Q4
+        #Q5
         """
         Check the relationship between two regular languages.
 
