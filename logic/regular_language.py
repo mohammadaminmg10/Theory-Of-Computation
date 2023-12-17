@@ -26,32 +26,14 @@ class RegularExpressionAnalyzer:
         """
 
     def to_dfa(self, expression):
-        pattern = re.compile(expression)
-
-        states = ['q' + str(i) for i in range(1, len(expression) + 2)]
-
-        alphabet = list(set(expression))
-
-        transitions = {(state, symbol): None for state in states for symbol in alphabet}
-
-        for state in states:
-            for symbol in alphabet:
-                next_state = 'q' + str(states.index(state) + 1) if pattern.match(symbol, pos=pattern.match(
-                    state).end()) else None
-                transitions[(state, symbol)] = next_state
-
-        start_state = 'q1'
-        accept_states = [state for state in states if
-                         pattern.match(state)]
-
-        return Dfa(states, alphabet, transitions, start_state, accept_states)
+        pass
 
     def compare_languages(self, expression1, expression2):
-        dfa1 = self.to_dfa(expression1)  # Convert expression1 to a Dfa object
-        dfa2 = self.to_dfa(expression2)  # Convert expression2 to a Dfa object
-
-        # Use are_equivalent method from the Dfa class to compare languages
-        return dfa1.are_equivalent(dfa2)
+        # dfa1 = self.to_dfa(expression1)  # Convert expression1 to a Dfa object
+        # dfa2 = self.to_dfa(expression2)  # Convert expression2 to a Dfa object
+        #
+        # # Use are_equivalent method from the Dfa class to compare languages
+        # return dfa1.are_equivalent(dfa2)
 
     def language_relation(self, expression1, expression2):
         # Q5
