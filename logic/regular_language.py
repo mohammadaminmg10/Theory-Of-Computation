@@ -29,18 +29,22 @@ class RegularExpressionAnalyzer:
         pass
 
     def compare_languages(self, expression1, expression2):
-        # dfa1 = self.to_dfa(expression1)  # Convert expression1 to a Dfa object
-        # dfa2 = self.to_dfa(expression2)  # Convert expression2 to a Dfa object
-        #
-        # # Use are_equivalent method from the Dfa class to compare languages
-        # return dfa1.are_equivalent(dfa2)
+        dfa1 = self.to_dfa(expression1)  # Convert expression1 to a Dfa object
+        dfa2 = self.to_dfa(expression2)  # Convert expression2 to a Dfa object
 
-    def language_relation(self, expression1, expression2):
-        # Q5
-        """
-        Check the relationship between two regular languages.
+        # Use are_equivalent method from the Dfa class to compare languages
+        return dfa1.are_equivalent(dfa2)
+    
+    def is_relation(self, expression1, expression2):
+        if self.is_subset(expression1, expression2) or self.is_subset(expression2, expression1):
+            return True
 
-        :param expression1: The first regular expression.
-        :param expression2: The second regular expression.
-        :return: A string indicating the relationship (subset, superset, equal, or none).
-        """
+    def is_subset(self, expression1, expression2):
+        dfa1 = self.to_dfa(expression1)
+        dfa2 = self.to_dfa(expression2)
+
+        for string in dfa1.all_strings():
+            if not dfa2.accepts_string(string):
+                return False
+        return True
+        

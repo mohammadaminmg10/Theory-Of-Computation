@@ -43,6 +43,13 @@ class TestRegularExpressionAnalyzer(unittest.TestCase):
         # Compare languages of the generated DFAs
         self.assertFalse(self.regex_analyzer.compare_languages(expression1, expression2))
 
+    def test_is_relation(self):
+        expression1 = "a*b"
+        expression2 = "a*b+c"
+
+        # Compare languages of the generated DFAs
+        self.assertTrue(self.regex_analyzer.is_relation(expression1, expression2))
+
 
 if __name__ == '__main__':
     unittest.main()
