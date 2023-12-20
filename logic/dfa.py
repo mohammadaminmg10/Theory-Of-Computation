@@ -14,10 +14,15 @@ class Dfa:
 
         for state in self.states:
             for symbol in self.alphabet:
-                if (state, symbol) in self.transitions:
-                    next_state = self.transitions[(state, symbol)]
-                    if next_state in self.accept_states:
-                        return False
+                next_state = self.transitions[(state, symbol)]
+                if next_state in self.accept_states:
+                    return False
+        return True
+
+    def is_trap(self, state):
+        for symbol in self.alphabet:
+            if self.transitions[(state, symbol)] != state:
+                return False
         return True
 
     def is_finite(self):
@@ -26,13 +31,43 @@ class Dfa:
         Checks whether the language of the DFA is finite.
         :return: True if the language is finite, False otherwise.
         """
+        if self.is_empty_language():
+            return True
+
+        self = self.minimize()
+        for state in self.states:
+            for symbol in self.symbols:
+                next_state = self.transitions[(state, symbol)]
+                if next_state == state:
+                    if not self.is_trap(state): 
+                        return False
+        return True
 
     def all_strings(self):
         """
         Q2*
         Returns all strings in the language of the DFA.
-        :return: A list of all strings in the language.
+        :return: A set of all strings in the language.
         """
+        if self.is_empty_language():
+            return set()
+        
+        if not self.is_finite():
+            return None
+        
+        strings = set()
+        def DFS(state, string):
+            if self.is_trap(state):
+                strings.add(string[:-1])
+                return
+            if state in self.accept_states:
+                strings.add(string)
+                return
+            for symbol in self.alphabet:
+                next_state = self.transitions[(state, symbol)]
+                DFS(next_state, string + symbol)
+        DFS(self.start_state, '')
+        return strings
 
     def accepts_string(self, input_string):
         current_state = self.start_state
