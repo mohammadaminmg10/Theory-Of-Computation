@@ -46,6 +46,17 @@ class Dfa:
         return current_state in self.accept_states
 
     def minimize(self):
+        # firt check for unreachable states and delete them
+        reachable_states = [self.start_state]
+        for state in reachable_states:
+            for symbol in self.alphabet:
+                if (state, symbol) in self.transitions:
+                    next_state = self.transitions[(state, symbol)]
+                    if next_state not in reachable_states:
+                        reachable_states.append(next_state)
+
+        self.states = reachable_states
+
         # Step 1: Initialize the table
         table_size = len(self.states)
         table = []
