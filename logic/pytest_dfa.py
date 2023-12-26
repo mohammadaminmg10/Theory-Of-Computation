@@ -50,6 +50,23 @@ class TestDfaMethods(unittest.TestCase):
             accept_states=['q1']
         ).is_trap('q0'))
 
+        self.assertFalse(Dfa(
+            states=['q0', 'q1', 'q2', 'q3'],
+            alphabet=['a', 'b'],
+            transitions={
+                ('q0', 'a'): 'q1',
+                ('q0', 'b'): 'q1',
+                ('q1', 'a'): 'q2',
+                ('q1', 'b'): 'q2',
+                ('q2', 'a'): 'q3',
+                ('q2', 'b'): 'q3', 
+                ('q3', 'a'): 'q3',
+                ('q3', 'b'): 'q0'
+            },
+            start_state='q0',
+            accept_states=['q1']
+        ).is_trap('q3'))
+
     def test_is_finite(self):
         self.assertFalse(self.dfa.is_finite())
         self.assertTrue(Dfa(
@@ -62,6 +79,21 @@ class TestDfaMethods(unittest.TestCase):
                 ('q1', 'b'): 'q2',
                 ('q2', 'a'): 'q2',
                 ('q2', 'b'): 'q2'
+            },
+            start_state='q0',
+            accept_states=['q1']
+        ).is_finite())
+
+        self.assertFalse(Dfa(
+            states=['q0', 'q1', 'q2'],
+            alphabet=['a', 'b'],
+            transitions={
+                ('q0', 'a'): 'q1',
+                ('q0', 'b'): 'q1',
+                ('q1', 'a'): 'q2',
+                ('q1', 'b'): 'q2',
+                ('q2', 'a'): 'q2',
+                ('q2', 'b'): 'q0'
             },
             start_state='q0',
             accept_states=['q1']

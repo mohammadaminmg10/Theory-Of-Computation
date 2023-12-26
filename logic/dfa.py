@@ -41,6 +41,8 @@ class Dfa:
                 if next_state == state:
                     if not self.is_trap(state):
                         return False
+                    if state in self.accept_states:
+                        return False
         return True
 
     def all_strings(self):
@@ -157,7 +159,7 @@ class Dfa:
                     equivalent_groups.append({state})
 
             for group in equivalent_groups:
-                group = sorted(group)
+                # group = sorted(group)
                 new_state = ",".join(group)
                 new_states.append(new_state)
 
