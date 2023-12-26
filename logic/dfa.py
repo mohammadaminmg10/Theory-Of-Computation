@@ -47,6 +47,7 @@ class Dfa:
 
     def minimize(self):
         # firt check for unreachable states and delete them
+        global equivalent_groups
         reachable_states = [self.start_state]
         for state in reachable_states:
             for symbol in self.alphabet:
@@ -87,42 +88,65 @@ class Dfa:
                                 table[i][j] = True
                                 changed = True
 
-        # Step 3: Merge equivalent states
-        equivalent_groups = []
-        for i in range(len(self.states)):
-            for j in range(i + 1, len(self.states)):
-                if not table[i][j]:
-                    found = False
-                    for group in equivalent_groups:
-                        if self.states[i] in group:
-                            group.append(self.states[j])
-                            found = True
-                            break
-                        elif self.states[j] in group:
-                            group.append(self.states[i])
-                            found = True
-                            break
-                    if not found:
-                        equivalent_groups.append([self.states[i], self.states[j]])
+            # Step 3: Merge equivalent states
+            equivalent_groups = []
+            for i in range(len(self.states)):
+                for j in range(i + 1, len(self.states)):
+                    if not table[i][j]:
+                        found = False
+                        for group in equivalent_groups:
+                            if self.states[i] in group or self.states[j] in group:
+                                group.add(self.states[i])
+                                group.add(self.states[j])
+                                found = True
+                                break
+                        if not found:
+                            equivalent_groups.append({self.states[i], self.states[j]})
 
         # Reconstruct the minimized DFA
-        if equivalent_groups:
+        new_start_state = None
+        if equivalent_groups or len(self.states) > len(equivalent_groups):
             new_states = []
             new_transitions = {}
             new_accept_states = []
+
+            for state in self.states:
+                found = False
+                for group in equivalent_groups:
+                    if state in group:
+                        found = True
+                        break
+                if not found:
+                    equivalent_groups.append({state})
+
             for group in equivalent_groups:
+                group = sorted(group)
                 new_state = ",".join(group)
                 new_states.append(new_state)
-                for state in group:
-                    if state == self.start_state:
-                        new_start_state = new_state
-                    if state in self.accept_states and new_state not in new_accept_states:
-                        new_accept_states.append(new_state)
-                    for symbol in self.alphabet:
-                        new_transitions[(new_state, symbol)] = ",".join([
-                            ",".join(member_group) for member_group in equivalent_groups
-                            if self.transitions[(state, symbol)] in member_group
-                        ])
+
+                if list(group)[0] == self.start_state:
+                    new_start_state = new_state
+
+                if any(state in self.accept_states for state in group):
+                    new_accept_states.append(new_state)
+
+            for group in equivalent_groups:
+                for symbol in self.alphabet:
+                    next_state = None
+                    for state in group:
+                        state_trans = self.transitions.get((state, symbol))
+                        if state_trans:
+                            next_group = None
+                            for eq_group in equivalent_groups:
+                                if state_trans in eq_group:
+                                    next_group = eq_group
+                                    break
+                            if next_group:
+                                next_state = ",".join(next_group)
+                                break
+                    if next_state:
+                        new_transitions[(",".join(group), symbol)] = next_state
+
             return Dfa(new_states, self.alphabet, new_transitions, new_start_state, new_accept_states)
         else:
             return self  # No minimization needed
