@@ -137,7 +137,56 @@ class TestDfaMethods(unittest.TestCase):
         self.assertFalse(self.dfa.accepts_string('bbbb'))
 
     def test_minimize(self):
-        self.assertEqual(self.dfa.minimize(), self.dfa)
+        self.assertTrue(self.dfa.minimize().are_equivalent(self.dfa))
+        # Define an initial DFA
+        dfa = Dfa(
+            states=['q0', 'q1', 'q2', 'q3', 'q4', 'q5'],
+            alphabet=['a', 'b'],
+            transitions={
+                ('q0', 'a'): 'q1',
+                ('q0', 'b'): 'q3',
+                ('q1', 'a'): 'q5',
+                ('q1', 'b'): 'q2',
+                ('q2', 'a'): 'q5',
+                ('q2', 'b'): 'q2',
+                ('q3', 'a'): 'q4',
+                ('q3', 'b'): 'q0',
+                ('q4', 'a'): 'q5',
+                ('q4', 'b'): 'q2',
+                ('q5', 'a'): 'q5',
+                ('q5', 'b'): 'q5'
+            },
+            start_state='q0',
+            accept_states=['q1', 'q2', 'q4']
+        )
+
+        # Minimize the DFA
+        minimized_dfa = dfa.minimize()
+
+        # Define the expected minimized DFA
+        expected_minimized_dfa = Dfa(
+            states=['q0,q3', 'q1,q2,q4', 'q5'],
+            alphabet=['a', 'b'],
+            transitions={
+                ('q0,q3', 'a'): 'q1,q2,q4',
+                ('q0,q3', 'b'): 'q0,q3',
+                ('q1,q2,q4', 'a'): 'q5',
+                ('q1,q2,q4', 'b'): 'q1,q2,q4',
+                ('q5', 'a'): 'q5',
+                ('q5', 'b'): 'q5'
+            },
+            start_state='q0,q3',
+            accept_states=['q1,q2,q4']
+        )
+        # self.assertTrue(minimized_dfa.are_equivalent(expected_minimized_dfa))
+
+        # Perform assertion to check if the minimized DFA matches the expected DFA
+        # Perform assertion after sorting the states
+        self.assertEqual(sorted(minimized_dfa.states), sorted(expected_minimized_dfa.states))
+        self.assertEqual(minimized_dfa.alphabet, expected_minimized_dfa.alphabet)
+        self.assertEqual(sorted(minimized_dfa.transitions), sorted(expected_minimized_dfa.transitions))
+        self.assertEqual(sorted(minimized_dfa.start_state), sorted(expected_minimized_dfa.start_state))
+        self.assertEqual(sorted(minimized_dfa.accept_states), sorted(expected_minimized_dfa.accept_states))
         self.assertTrue(self.dfa.minimize().accepts_string('abab'))
         self.assertFalse(self.dfa.minimize().accepts_string('bbbb'))
 

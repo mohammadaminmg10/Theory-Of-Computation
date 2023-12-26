@@ -139,8 +139,7 @@ class Dfa:
                                 found = True
                                 break
                         if not found:
-                            equivalent_groups.append(
-                                {self.states[i], self.states[j]})
+                            equivalent_groups.append({self.states[i], self.states[j]})
 
         # Reconstruct the minimized DFA
         new_start_state = None
@@ -159,7 +158,7 @@ class Dfa:
                     equivalent_groups.append({state})
 
             for group in equivalent_groups:
-                # group = sorted(group)
+                group = sorted(group)
                 new_state = ",".join(group)
                 new_states.append(new_state)
 
