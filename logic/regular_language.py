@@ -23,6 +23,8 @@ class NFA:
                         stack.append(epsilon_state)
 
         return list(epsilon_closure_set)
+
+
 class RegularExpression:
     def __init__(self):
         pass

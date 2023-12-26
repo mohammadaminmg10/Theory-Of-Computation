@@ -1,7 +1,7 @@
 import unittest
 
 from dfa import Dfa
-from regular_language import RegularExpressionAnalyzer
+from regular_language import RegularExpressionAnalyzer, NFA
 
 
 class TestRegularExpressionAnalyzer(unittest.TestCase):
@@ -12,7 +12,20 @@ class TestRegularExpressionAnalyzer(unittest.TestCase):
         pass
 
     def test_to_nfa(self):
-        pass
+        regex = "a*b"
+        nfa = self.regex_analyzer.to_nfa(regex)
+
+        expected_nfa = NFA(
+            states=['q0', 'q1'],
+            alphabet=['a', 'b'],
+            transitions={
+                'q0': {'a': ['q1'], 'b': ['q0']},
+                'q1': {'a': ['q1'], 'b': ['q1']}
+            },
+            start_state='q0',
+            accept_states=['q1']
+        )
+        self.assertEqual(nfa, expected_nfa)
 
     def test_to_dfa(self):
         # regex = "a*b"

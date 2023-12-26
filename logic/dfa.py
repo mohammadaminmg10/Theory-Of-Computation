@@ -139,8 +139,7 @@ class Dfa:
                                 found = True
                                 break
                         if not found:
-                            equivalent_groups.append(
-                                {self.states[i], self.states[j]})
+                            equivalent_groups.append({self.states[i], self.states[j]})
 
         # Reconstruct the minimized DFA
         new_start_state = None
