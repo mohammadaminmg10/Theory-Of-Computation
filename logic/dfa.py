@@ -11,7 +11,8 @@ class Dfa:
     def is_empty_language(self):
         if not self.accept_states:
             return True
-
+        if self.start_state in self.accept_states:
+            return False
         for state in self.states:
             for symbol in self.alphabet:
                 next_state = self.transitions[(state, symbol)]
@@ -24,7 +25,7 @@ class Dfa:
             if self.transitions[(state, symbol)] != state:
                 return False
         return True
-
+    
     def is_finite(self):
         """
         Q2
@@ -34,9 +35,9 @@ class Dfa:
         if self.is_empty_language():
             return True
 
-        self = self.minimize()
+        self.minimize()
         for state in self.states:
-            for symbol in self.symbols:
+            for symbol in self.alphabet:
                 next_state = self.transitions[(state, symbol)]
                 if next_state == state:
                     if not self.is_trap(state): 
@@ -49,20 +50,19 @@ class Dfa:
         Returns all strings in the language of the DFA.
         :return: A set of all strings in the language.
         """
+        strings = set()
         if self.is_empty_language():
             return set()
         
         if not self.is_finite():
             return None
         
-        strings = set()
         def DFS(state, string):
             if self.is_trap(state):
                 strings.add(string[:-1])
                 return
             if state in self.accept_states:
                 strings.add(string)
-                return
             for symbol in self.alphabet:
                 next_state = self.transitions[(state, symbol)]
                 DFS(next_state, string + symbol)
@@ -147,6 +147,10 @@ class Dfa:
                             ",".join(member_group) for member_group in equivalent_groups
                             if self.transitions[(state, symbol)] in member_group
                         ])
+            self.states = new_states
+            self.transitions = new_transitions
+            self.start_state = new_start_state
+            self.accept_states = new_accept_states
             return Dfa(new_states, self.alphabet, new_transitions, new_start_state, new_accept_states)
         else:
             return self  # No minimization needed

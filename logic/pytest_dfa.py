@@ -49,8 +49,8 @@ class TestDfaMethods(unittest.TestCase):
             accept_states=['q1']
         ).is_trap('q0'))
 
-    def test_is_infinite(self):
-        self.assertFalse(self.dfa.is_infinite())
+    def test_is_finite(self):
+        self.assertFalse(self.dfa.is_finite())
         self.assertTrue(Dfa(
             states=['q0', 'q1', 'q2'],
             alphabet=['a', 'b'],
@@ -64,7 +64,7 @@ class TestDfaMethods(unittest.TestCase):
             },
             start_state='q0',
             accept_states=['q1']
-        ).is_infinite())
+        ).is_finite())
 
     def test_all_strings(self):
         self.assertEqual(Dfa(
@@ -79,8 +79,26 @@ class TestDfaMethods(unittest.TestCase):
                 ('q2', 'b'): 'q2'
             },
             start_state='q0',
-            accept_states=['q1']
-        ).all_strings(), {'aa', 'ab', 'ba', 'bb'})
+            accept_states=['q0']
+        ).all_strings(), {''})
+
+        self.assertEqual(Dfa(
+            states=['q0', 'q1', 'q2', 'q3'],
+            alphabet=['a', 'b'],
+            transitions={
+                ('q0', 'a'): 'q1',
+                ('q0', 'b'): 'q1',
+                ('q1', 'a'): 'q2',
+                ('q1', 'b'): 'q2',
+                ('q2', 'a'): 'q3',
+                ('q2', 'b'): 'q3',
+                ('q3', 'a'): 'q2',
+                ('q3', 'b'): 'q3',
+            },
+            start_state='q0',
+            accept_states=['q2']
+        ).all_strings(), None)
+    
 
     def test_accepts_string(self):
         self.assertTrue(self.dfa.accepts_string('abab'))
