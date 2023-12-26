@@ -7,17 +7,22 @@ class Dfa:
         self.start_state = start_state
         self.accept_states = accept_states
 
-    
     def is_empty_language(self):
         if not self.accept_states:
             return True
-
+        if self.start_state in self.accept_states:
+            return False
         for state in self.states:
             for symbol in self.alphabet:
-                if (state, symbol) in self.transitions:
-                    next_state = self.transitions[(state, symbol)]
-                    if next_state in self.accept_states:
-                        return False
+                next_state = self.transitions[(state, symbol)]
+                if next_state in self.accept_states:
+                    return False
+        return True
+
+    def is_trap(self, state):
+        for symbol in self.alphabet:
+            if self.transitions[(state, symbol)] != state:
+                return False
         return True
 
     def is_finite(self):
@@ -26,13 +31,44 @@ class Dfa:
         Checks whether the language of the DFA is finite.
         :return: True if the language is finite, False otherwise.
         """
+        if self.is_empty_language():
+            return True
+
+        self.minimize()
+        for state in self.states:
+            for symbol in self.alphabet:
+                next_state = self.transitions[(state, symbol)]
+                if next_state == state:
+                    if not self.is_trap(state):
+                        return False
+                    if state in self.accept_states:
+                        return False
+        return True
 
     def all_strings(self):
         """
         Q2*
         Returns all strings in the language of the DFA.
-        :return: A list of all strings in the language.
+        :return: A set of all strings in the language.
         """
+        strings = set()
+        if self.is_empty_language():
+            return set()
+
+        if not self.is_finite():
+            return None
+
+        def DFS(state, string):
+            if self.is_trap(state):
+                strings.add(string[:-1])
+                return
+            if state in self.accept_states:
+                strings.add(string)
+            for symbol in self.alphabet:
+                next_state = self.transitions[(state, symbol)]
+                DFS(next_state, string + symbol)
+        DFS(self.start_state, '')
+        return strings
 
     def accepts_string(self, input_string):
         current_state = self.start_state
@@ -81,8 +117,10 @@ class Dfa:
             for i in range(len(self.states)):
                 for j in range(i + 1, len(self.states)):
                     for symbol in self.alphabet:
-                        index_i = self.states.index(self.transitions[(self.states[i], symbol)])
-                        index_j = self.states.index(self.transitions[(self.states[j], symbol)])
+                        index_i = self.states.index(
+                            self.transitions[(self.states[i], symbol)])
+                        index_j = self.states.index(
+                            self.transitions[(self.states[j], symbol)])
                         if table[index_i][index_j] or table[index_j][index_i]:
                             if not table[i][j]:
                                 table[i][j] = True
@@ -147,12 +185,16 @@ class Dfa:
                     if next_state:
                         new_transitions[(",".join(group), symbol)] = next_state
 
+            self.start_state = new_start_state
+            self.transitions = new_transitions
+            self.states = new_states
+            self.accept_states = new_accept_states
             return Dfa(new_states, self.alphabet, new_transitions, new_start_state, new_accept_states)
         else:
             return self  # No minimization needed
 
     def are_equivalent(self, other_dfa):
-        
+
         for dfa_1, dfa_2 in zip(self.start_state, other_dfa.start_state):
             if (dfa_1 in self.accept_states and dfa_2 not in other_dfa.accept_states) or \
                     (dfa_2 in other_dfa.accept_states and dfa_1 not in self.accept_states):
@@ -161,7 +203,8 @@ class Dfa:
                 for symbol_1, symbol_2 in zip(self.alphabet, other_dfa.alphabet):
                     if ((state_1, symbol_1) in self.transitions) and ((state_2, symbol_2) in other_dfa.transitions):
                         next_state_1 = self.transitions[(state_1, symbol_1)]
-                        next_state_2 = other_dfa.transitions[(state_2, symbol_2)]
+                        next_state_2 = other_dfa.transitions[(
+                            state_2, symbol_2)]
                         if (next_state_1 in self.accept_states and next_state_2 not in other_dfa.accept_states) or \
                                 (next_state_2 in other_dfa.accept_states and next_state_1 not in self.accept_states):
                             return False
