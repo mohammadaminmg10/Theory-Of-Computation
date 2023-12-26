@@ -2,6 +2,7 @@ import unittest
 
 from dfa import Dfa
 
+
 class TestDfaMethods(unittest.TestCase):
     def setUp(self):
         self.dfa = Dfa(
@@ -33,7 +34,7 @@ class TestDfaMethods(unittest.TestCase):
             start_state='q0',
             accept_states=[]
         ).is_empty_language())
-    
+
     def test_is_trap(self):
         self.assertFalse(self.dfa.is_trap('q0'))
         self.assertTrue(Dfa(
@@ -98,7 +99,6 @@ class TestDfaMethods(unittest.TestCase):
             start_state='q0',
             accept_states=['q2']
         ).all_strings(), None)
-    
 
     def test_accepts_string(self):
         self.assertTrue(self.dfa.accepts_string('abab'))

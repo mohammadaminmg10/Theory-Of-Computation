@@ -7,7 +7,6 @@ class Dfa:
         self.start_state = start_state
         self.accept_states = accept_states
 
-    
     def is_empty_language(self):
         if not self.accept_states:
             return True
@@ -25,7 +24,7 @@ class Dfa:
             if self.transitions[(state, symbol)] != state:
                 return False
         return True
-    
+
     def is_finite(self):
         """
         Q2
@@ -40,7 +39,7 @@ class Dfa:
             for symbol in self.alphabet:
                 next_state = self.transitions[(state, symbol)]
                 if next_state == state:
-                    if not self.is_trap(state): 
+                    if not self.is_trap(state):
                         return False
         return True
 
@@ -53,10 +52,10 @@ class Dfa:
         strings = set()
         if self.is_empty_language():
             return set()
-        
+
         if not self.is_finite():
             return None
-        
+
         def DFS(state, string):
             if self.is_trap(state):
                 strings.add(string[:-1])
@@ -81,6 +80,18 @@ class Dfa:
         return current_state in self.accept_states
 
     def minimize(self):
+        # firt check for unreachable states and delete them
+        global equivalent_groups
+        reachable_states = [self.start_state]
+        for state in reachable_states:
+            for symbol in self.alphabet:
+                if (state, symbol) in self.transitions:
+                    next_state = self.transitions[(state, symbol)]
+                    if next_state not in reachable_states:
+                        reachable_states.append(next_state)
+
+        self.states = reachable_states
+
         # Step 1: Initialize the table
         table_size = len(self.states)
         table = []
@@ -104,59 +115,85 @@ class Dfa:
             for i in range(len(self.states)):
                 for j in range(i + 1, len(self.states)):
                     for symbol in self.alphabet:
-                        index_i = self.states.index(self.transitions[(self.states[i], symbol)])
-                        index_j = self.states.index(self.transitions[(self.states[j], symbol)])
+                        index_i = self.states.index(
+                            self.transitions[(self.states[i], symbol)])
+                        index_j = self.states.index(
+                            self.transitions[(self.states[j], symbol)])
                         if table[index_i][index_j] or table[index_j][index_i]:
                             if not table[i][j]:
                                 table[i][j] = True
                                 changed = True
 
-        # Step 3: Merge equivalent states
-        equivalent_groups = []
-        for i in range(len(self.states)):
-            for j in range(i + 1, len(self.states)):
-                if not table[i][j]:
-                    found = False
-                    for group in equivalent_groups:
-                        if self.states[i] in group:
-                            group.append(self.states[j])
-                            found = True
-                            break
-                        elif self.states[j] in group:
-                            group.append(self.states[i])
-                            found = True
-                            break
-                    if not found:
-                        equivalent_groups.append([self.states[i], self.states[j]])
+            # Step 3: Merge equivalent states
+            equivalent_groups = []
+            for i in range(len(self.states)):
+                for j in range(i + 1, len(self.states)):
+                    if not table[i][j]:
+                        found = False
+                        for group in equivalent_groups:
+                            if self.states[i] in group or self.states[j] in group:
+                                group.add(self.states[i])
+                                group.add(self.states[j])
+                                found = True
+                                break
+                        if not found:
+                            equivalent_groups.append(
+                                {self.states[i], self.states[j]})
 
         # Reconstruct the minimized DFA
-        if equivalent_groups:
+        new_start_state = None
+        if equivalent_groups or len(self.states) > len(equivalent_groups):
             new_states = []
             new_transitions = {}
             new_accept_states = []
+
+            for state in self.states:
+                found = False
+                for group in equivalent_groups:
+                    if state in group:
+                        found = True
+                        break
+                if not found:
+                    equivalent_groups.append({state})
+
             for group in equivalent_groups:
+                group = sorted(group)
                 new_state = ",".join(group)
                 new_states.append(new_state)
-                for state in group:
-                    if state == self.start_state:
-                        new_start_state = new_state
-                    if state in self.accept_states and new_state not in new_accept_states:
-                        new_accept_states.append(new_state)
-                    for symbol in self.alphabet:
-                        new_transitions[(new_state, symbol)] = ",".join([
-                            ",".join(member_group) for member_group in equivalent_groups
-                            if self.transitions[(state, symbol)] in member_group
-                        ])
-            self.states = new_states
-            self.transitions = new_transitions
+
+                if list(group)[0] == self.start_state:
+                    new_start_state = new_state
+
+                if any(state in self.accept_states for state in group):
+                    new_accept_states.append(new_state)
+
+            for group in equivalent_groups:
+                for symbol in self.alphabet:
+                    next_state = None
+                    for state in group:
+                        state_trans = self.transitions.get((state, symbol))
+                        if state_trans:
+                            next_group = None
+                            for eq_group in equivalent_groups:
+                                if state_trans in eq_group:
+                                    next_group = eq_group
+                                    break
+                            if next_group:
+                                next_state = ",".join(next_group)
+                                break
+                    if next_state:
+                        new_transitions[(",".join(group), symbol)] = next_state
+
             self.start_state = new_start_state
+            self.transitions = new_transitions
+            self.states = new_states
             self.accept_states = new_accept_states
             return Dfa(new_states, self.alphabet, new_transitions, new_start_state, new_accept_states)
         else:
             return self  # No minimization needed
 
     def are_equivalent(self, other_dfa):
-        
+
         for dfa_1, dfa_2 in zip(self.start_state, other_dfa.start_state):
             if (dfa_1 in self.accept_states and dfa_2 not in other_dfa.accept_states) or \
                     (dfa_2 in other_dfa.accept_states and dfa_1 not in self.accept_states):
@@ -165,7 +202,8 @@ class Dfa:
                 for symbol_1, symbol_2 in zip(self.alphabet, other_dfa.alphabet):
                     if ((state_1, symbol_1) in self.transitions) and ((state_2, symbol_2) in other_dfa.transitions):
                         next_state_1 = self.transitions[(state_1, symbol_1)]
-                        next_state_2 = other_dfa.transitions[(state_2, symbol_2)]
+                        next_state_2 = other_dfa.transitions[(
+                            state_2, symbol_2)]
                         if (next_state_1 in self.accept_states and next_state_2 not in other_dfa.accept_states) or \
                                 (next_state_2 in other_dfa.accept_states and next_state_1 not in self.accept_states):
                             return False
