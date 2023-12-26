@@ -6,7 +6,7 @@ from dfa import Dfa
 class TestDfaMethods(unittest.TestCase):
     def setUp(self):
         self.dfa = Dfa(
-            states=['q0', 'q1', 'q2'],
+            states=['q0', 'q1', 'q2', 'q3'],
             alphabet=['a', 'b'],
             transitions={
                 ('q0', 'a'): 'q1',
@@ -178,7 +178,7 @@ class TestDfaMethods(unittest.TestCase):
             start_state='q0,q3',
             accept_states=['q1,q2,q4']
         )
-        # self.assertTrue(minimized_dfa.are_equivalent(expected_minimized_dfa))
+        self.assertTrue(minimized_dfa.are_equivalent(expected_minimized_dfa))
 
         # Perform assertion to check if the minimized DFA matches the expected DFA
         # Perform assertion after sorting the states
