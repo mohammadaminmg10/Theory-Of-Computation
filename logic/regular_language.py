@@ -24,40 +24,6 @@ class NFA:
 
         return list(epsilon_closure_set)
 
-
-class RegularExpression:
-    def __init__(self):
-        pass
-
-    def to_nfa(self, expression):
-        def _create_state():
-            nonlocal state_counter
-            state = f"q{state_counter}"
-            state_counter += 1
-            return state
-
-        def _concatenate_nfas(nfa1, nfa2):
-            # Concatenation logic
-            pass
-
-        def _parse(expression):
-            # Parse regular expression and construct NFA
-            pass
-
-        state_counter = 0
-
-        # Use _parse function to convert expression to NFA
-        nfa = _parse(expression)
-
-        # For demonstration purposes, return an empty NFA
-        return NFA(states=[], alphabet=[], transitions={}, start_state='', accept_states=[])
-
-
-# Example usage:
-regex = RegularExpression()
-result_nfa = regex.to_nfa("your_regular_expression_here")
-
-
 class RegularExpressionAnalyzer:
     def __init__(self):
         self.expressions = []
