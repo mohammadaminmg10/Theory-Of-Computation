@@ -24,40 +24,6 @@ class NFA:
 
         return list(epsilon_closure_set)
 
-
-class RegularExpression:
-    def __init__(self):
-        pass
-
-    def to_nfa(self, expression):
-        def _create_state():
-            nonlocal state_counter
-            state = f"q{state_counter}"
-            state_counter += 1
-            return state
-
-        def _concatenate_nfas(nfa1, nfa2):
-            # Concatenation logic
-            pass
-
-        def _parse(expression):
-            # Parse regular expression and construct NFA
-            pass
-
-        state_counter = 0
-
-        # Use _parse function to convert expression to NFA
-        nfa = _parse(expression)
-
-        # For demonstration purposes, return an empty NFA
-        return NFA(states=[], alphabet=[], transitions={}, start_state='', accept_states=[])
-
-
-# Example usage:
-regex = RegularExpression()
-result_nfa = regex.to_nfa("your_regular_expression_here")
-
-
 class RegularExpressionAnalyzer:
     def __init__(self):
         self.expressions = []
@@ -80,35 +46,83 @@ class RegularExpressionAnalyzer:
 
         def _concatenate_nfas(nfa1, nfa2):
             new_start = nfa1.start_state
-            new_accept = nfa2.accept_states[0]
-
-            for state in nfa1.transitions:
-                if state != 'ε':
-                    for symbol in nfa1.transitions[state]:
-                        if symbol != 'ε':
-                            nfa1.transitions[state][symbol] = [state + suffix for suffix in nfa1.transitions[state][symbol]]
-
-            for state in nfa2.transitions:
-                if state != 'ε':
-                    for symbol in nfa2.transitions[state]:
-                        if symbol != 'ε':
-                            nfa2.transitions[state][symbol] = [state + suffix for suffix in nfa2.transitions[state][symbol]]
+            new_accept = nfa2.accept_states
+            # for state in nfa1.transitions:
+            #     if state != 'ε':
+            #         for symbol in nfa1.transitions[state]:
+            #             if symbol != 'ε':
+            #                 nfa1.transitions[state][symbol] = [state + suffix for suffix in nfa1.transitions[state][symbol]]
+            # for state in nfa2.transitions:
+            #     if state != 'ε':
+            #         for symbol in nfa2.transitions[state]:
+            #             if symbol != 'ε':
+            #                 nfa2.transitions[state][symbol] = [state + suffix for suffix in nfa2.transitions[state][symbol]]
 
             for state in nfa1.accept_states:
                 if 'ε' not in nfa1.transitions[state]:
                     nfa1.transitions[state]['ε'] = []
-                nfa1.transitions[state]['ε'].append(nfa2.start_state)
+                nfa1.transitions[state]['ε'].extend([nfa2.start_state])
 
             return NFA(
                 states=nfa1.states + nfa2.states,
                 alphabet=list(set(nfa1.alphabet + nfa2.alphabet)),
                 transitions={**nfa1.transitions, **nfa2.transitions},
                 start_state=new_start,
+                accept_states=new_accept
+            )
+        
+        def _alternative_nfas(nfa1, nfa2):
+            new_start = _create_state()
+            new_accept = _create_state()
+            transitions = {
+                new_start: {'ε': [nfa1.start_state, nfa2.start_state]},
+                new_accept: {}
+            }
+            for state in nfa1.accept_states:
+                if 'ε' not in nfa1.transitions[state]:
+                    nfa1.transitions[state]['ε'] = []
+                nfa1.transitions[state]['ε'].extend([new_accept])
+            for state in nfa2.accept_states:
+                if 'ε' not in nfa2.transitions[state]:
+                    nfa2.transitions[state]['ε'] = []
+                nfa2.transitions[state]['ε'].extend([new_accept])
+            return NFA(
+                states=[new_start, new_accept] + nfa1.states + nfa2.states,
+                alphabet=list(set(nfa1.alphabet + nfa2.alphabet)),
+                transitions={**transitions, **nfa1.transitions, **nfa2.transitions},
+                start_state=new_start,
                 accept_states=[new_accept]
             )
 
+        def infix_to_postfix(infix_expression):
+            operator_precedence = {'|': 1, '.': 2, '*': 3}  # Define operator precedence
+
+            def is_operator(token):
+                return token in operator_precedence
+
+            output_stack = []
+            operator_stack = []
+
+            for token in infix_expression:
+                if token.isalpha():
+                    output_stack.append(token)
+                elif token == '(':
+                    operator_stack.append(token)
+                elif token == ')':
+                    while operator_stack and operator_stack[-1] != '(':
+                        output_stack.append(operator_stack.pop())
+                    operator_stack.pop()  # Discard '('
+                elif is_operator(token):
+                    while operator_stack and operator_precedence.get(operator_stack[-1], 0) >= operator_precedence[token]:
+                        output_stack.append(operator_stack.pop())
+                    operator_stack.append(token)
+            while operator_stack:
+                output_stack.append(operator_stack.pop())
+            return ''.join(output_stack)
+    
         state_counter = 0
         stack = []
+        expression = infix_to_postfix(expression)
 
         for char in expression:
             if char.isalpha():
@@ -131,24 +145,22 @@ class RegularExpressionAnalyzer:
             elif char == '|':
                 nfa2 = stack.pop()
                 nfa1 = stack.pop()
-                new_nfa = _concatenate_nfas(nfa1, nfa2)
+                new_nfa = _alternative_nfas(nfa1, nfa2)
                 stack.append(new_nfa)
-            elif char == '*':
+            elif char == '+':
+                # this means we should have at least 1 expression of its previous expression; shuch as (ab)+
                 nfa = stack.pop()
-                start_state = _create_state()
-                accept_state = _create_state()
-
-                transitions = {
-                    start_state: {},
-                    accept_state: {}
-                }
+                # start_state = _create_state()
+                # accept_state = _create_state()
+                # transitions = {
+                #     start_state: {},
+                #     accept_state: {}
+                # }
 
                 for state in nfa.accept_states:
                     if 'ε' not in nfa.transitions[state]:
-                        nfa.transitions[state]['ε'] = []
-                    nfa.transitions[state]['ε'].append(nfa.start_state)
-                    nfa.transitions[state]['ε'].append(accept_state)
-
+                        nfa.transitions[state]['ε'] = [nfa.start_state]
+                    # nfa.transitions[state]['ε'].extend([nfa.start_state, accept_state])
                 transitions[start_state]['ε'] = [nfa.start_state, accept_state]
 
                 new_nfa = NFA(
@@ -160,8 +172,19 @@ class RegularExpressionAnalyzer:
                 )
                 stack.append(new_nfa)
             elif char == '.':
-                # Concatenation logic
-                pass
+                nfa2 = stack.pop()
+                nfa1 = stack.pop()
+                new_nfa = _concatenate_nfas(nfa1, nfa2)
+                stack.append(new_nfa)
+            elif char == '*':
+                nfa = stack.pop()
+                for state in nfa.accept_states:
+                    if 'ε' not in nfa.transitions[state]:
+                        nfa.transitions[state]['ε'] = [nfa.start_state]
+                    if 'ε' in nfa.transitions[nfa.start_state]:
+                        nfa.transitions[nfa.start_state]['ε'].extend([state])
+                    nfa.transitions[nfa.start_state]['ε'] = [state]                        
+                stack.append(nfa)
 
         return stack.pop() if stack else None
 
