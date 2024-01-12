@@ -113,7 +113,7 @@ class TestDfaMethods(unittest.TestCase):
             },
             start_state='q0',
             accept_states=['q0']
-        ).all_strings(), {''})
+        ).all_strings(), ({''}, 1))
 
         self.assertEqual(Dfa(
             states=['q0', 'q1', 'q2', 'q3'],

@@ -38,6 +38,9 @@ class RegularExpressionAnalyzer:
     def __init__(self):
         self.expressions = []
 
+    def simplize_expression(self):
+        pass
+
     def is_regular(self, expression):
         # Q1
         """
@@ -46,6 +49,26 @@ class RegularExpressionAnalyzer:
         :param expression: The input regular expression.
         :return: True if the expression is a regular expression, False otherwise.
         """
+        operator_precedence = {'|': 1, '.': 2, '*': 3, '+': 3}  # Define operator precedence
+        valid_symbols = {'∅', 'ε', '|', '*', '+', '(', ')'}
+        def is_operator(token):
+            return token in operator_precedence
+        def validate_infix_expression():
+            stack = []
+            for i, char in enumerate(expression):
+                if char == '(':
+                    stack.append(char)
+                elif char == ')':
+                    if not stack or stack[-1] != '(':
+                        return False  # Unmatched closing parenthesis or misplaced operator
+                    stack.pop()
+                elif is_operator(char):
+                    if i == 0 or (i == len(expression) - 1 or expression[i - 1] in operator_precedence or expression[i + 1] in operator_precedence) and char not in ['*', '+']:
+                        return False  # Misplaced operator
+                elif char not in valid_symbols and not char.isalpha():
+                    return False  # Invalid symbol
+            return not stack  # Check if all opening parentheses are matched
+        return validate_infix_expression() and self.to_nfa(expression) is not None
 
     def to_nfa(self, expression):
         def _create_state():
@@ -105,7 +128,7 @@ class RegularExpressionAnalyzer:
             )
 
         def infix_to_postfix(infix_expression):
-            operator_precedence = {'|': 1, '.': 2, '*': 3}  # Define operator precedence
+            operator_precedence = {'|': 1, '.': 2, '*': 3, '+': 3, '(': -1, ')': -1}  # Define operator precedence
 
             def is_operator(token):
                 return token in operator_precedence
@@ -114,7 +137,7 @@ class RegularExpressionAnalyzer:
             operator_stack = []
 
             for token in infix_expression:
-                if token.isalpha():
+                if token.isalpha() or token in {'∅', 'ε'}:
                     output_stack.append(token)
                 elif token == '(':
                     operator_stack.append(token)
@@ -135,7 +158,7 @@ class RegularExpressionAnalyzer:
         expression = infix_to_postfix(expression)
 
         for char in expression:
-            if char.isalpha():
+            if char.isalpha() or char in {'∅', 'ε'}:
                 start_state = _create_state()
                 accept_state = _create_state()
 

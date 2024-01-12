@@ -42,7 +42,7 @@ class Dfa:
                     if not self.is_trap(state):
                         return False
                     if state in self.accept_states:
-                        return False
+                        return False          
         return True
 
     def all_strings(self):
@@ -68,7 +68,7 @@ class Dfa:
                 next_state = self.transitions[(state, symbol)]
                 DFS(next_state, string + symbol)
         DFS(self.start_state, '')
-        return strings
+        return strings, len(strings)
 
     def accepts_string(self, input_string):
         current_state = self.start_state
