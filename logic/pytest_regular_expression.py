@@ -9,11 +9,21 @@ class TestRegularExpressionAnalyzer(unittest.TestCase):
         self.regex_analyzer = RegularExpressionAnalyzer()
 
     def test_is_regular(self):
-        pass
+        self.assertTrue(self.regex_analyzer.is_regular("a"))
+        self.assertTrue(self.regex_analyzer.is_regular("a.b|c"))
+        self.assertTrue(self.regex_analyzer.is_regular("((a|b))*"))
+        self.assertTrue(self.regex_analyzer.is_regular("∅|ε"))
+        self.assertTrue(self.regex_analyzer.is_regular("a+"))
+        self.assertTrue(self.regex_analyzer.is_regular("(a*)|(b*)"))
+        self.assertFalse(self.regex_analyzer.is_regular("(a|b"))
+        self.assertTrue(self.regex_analyzer.is_regular("(a*)*"))
+        self.assertFalse(self.regex_analyzer.is_regular("a|*b"))
+        self.assertFalse(self.regex_analyzer.is_regular("a|b|"))
+        self.assertTrue(self.regex_analyzer.is_regular("a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q"))
 
     def test_to_nfa(self):
 
-        regex = "a.b|c*"
+        regex = "(((a.b))|c*)"
         result_nfa = self.regex_analyzer.to_nfa(regex)
         # Assert the expected properties of the resulting NFA
 
