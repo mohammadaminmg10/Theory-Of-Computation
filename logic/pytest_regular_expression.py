@@ -1,7 +1,7 @@
 import unittest
 
 from dfa import Dfa
-from regular_language import RegularExpressionAnalyzer, NFA
+from regular_language import RegularExpressionAnalyzer, NFA, DFA
 
 
 class TestRegularExpressionAnalyzer(unittest.TestCase):
@@ -67,26 +67,54 @@ class TestRegularExpressionAnalyzer(unittest.TestCase):
         self.assertEqual(nfa.transitions, expected_nfa.transitions)
 
     def test_to_dfa(self):
-        # regex = "a*b"
-        # dfa = self.regex_analyzer.to_dfa(regex)
-        #
-        # # Create an expected DFA manually or through an alternative method
-        # expected_dfa = Dfa(
-        #     states=['q0', 'q1'],
-        #     alphabet=['a', 'b'],
-        #     transitions={
-        #         ('q0', 'a'): 'q1',
-        #         ('q0', 'b'): 'q0',
-        #         ('q1', 'a'): 'q1',
-        #         ('q1', 'b'): 'q1'
-        #     },
-        #     start_state='q0',
-        #     accept_states=['q1']
-        # )
-        #
-        # # Compare the generated DFA with the expected DFA
-        # self.assertEqual(dfa, expected_dfa)
-        pass
+        regex = "a.b|c*"
+        result_dfa = self.regex_analyzer.to_dfa(regex)
+        # Assert the expected properties of the resulting DFA
+
+        # States
+        expected_states = {('q7', 'q4', 'q6', 'q0', 'q5'), ('q3', 'q7'), ('q4', 'q5', 'q7'), ('q1', 'q2')}
+        self.assertEqual(set(result_dfa.states), expected_states)
+
+        # Alphabet
+        expected_alphabet = {'a', 'b', 'c'}
+        self.assertEqual(set(result_dfa.alphabet), expected_alphabet)
+
+        # Transitions
+        expected_transitions = {
+            ('q3', 'q7'): {'a': ('q0', 'q1', 'q2'), 'b': ('q3',), 'c': ('q4', 'q7', 'q5')},
+            ('q1', 'q2'): {'a': ('q0', 'q1', 'q2'), 'b': ('q3',), 'c': ('q4', 'q7', 'q5')},
+            ('q7', 'q4', 'q6', 'q0', 'q5'): {'a': ('q0', 'q1', 'q2'), 'b': ('q3',), 'c': ('q4', 'q7', 'q5')},
+            ('q4', 'q5', 'q7'): {'a': ('q0', 'q1', 'q2'), 'b': ('q3',), 'c': ('q4', 'q7', 'q5')}
+        }
+        self.assertEqual(result_dfa.transitions, expected_transitions)
+
+        # Start State
+        expected_start_state = ('q3', 'q7')
+        self.assertEqual(result_dfa.start_state, expected_start_state)
+
+        # Accept States
+        expected_accept_states = {('q3', 'q7'), ('q1', 'q2'), ('q7', 'q4', 'q6', 'q0', 'q5'), ('q4', 'q5', 'q7')}
+        self.assertEqual(set(result_dfa.accept_states), expected_accept_states)
+        self.assertIsNotNone(result_dfa, "Resulting DFA should not be None")
+
+        # Additional test case
+        regex = "(a*).b"
+        dfa = self.regex_analyzer.to_dfa(regex)
+        expected_dfa = DFA(
+            states={('q0', 'q1', 'q2'), ('q3',)},
+            alphabet={'a', 'b'},
+            transitions={
+                ('q0', 'q1', 'q2'): {'a': ('q0', 'q1', 'q2'), 'b': ('q3',)},
+                ('q3',): {'a': (), 'b': ()}
+            },
+            start_state=('q0', 'q1', 'q2'),
+            accept_states={('q3',)}
+        )
+        self.assertEqual(set(dfa.states), expected_dfa.states)
+        self.assertEqual(expected_dfa.alphabet, set(dfa.alphabet))
+        self.assertEqual(expected_dfa.accept_states, set(dfa.accept_states))
+        self.assertEqual(expected_dfa.start_state, dfa.start_state)
+        self.assertEqual(dfa.transitions, expected_dfa.transitions)
 
     def test_compare_languages(self):
         expression1 = "a*b"
