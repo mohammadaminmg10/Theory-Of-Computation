@@ -30,7 +30,7 @@ class Ui_MainWindow(object):
     def on_btn_add_Alphabet(self):
         user_input = self.txt_Alphabet.toPlainText()
         if len(user_input) == 1:
-            if user_input not in self.STATES:
+            if user_input not in self.ALPHABETS:
                 self.ALPHABETS.append(self.txt_Alphabet.toPlainText())
                 self.listWidget_Alphabet.addItem(self.ALPHABETS[-1])
 
@@ -52,6 +52,16 @@ class Ui_MainWindow(object):
             self.ALPHABETS.remove(item.text())
             self.listWidget_Alphabet.takeItem(row)
             del item
+
+    def on_page_Transaction_shown(self, event):
+        self.combo_CurrentStates.clear()
+        self.combo_Transactions.clear()
+        self.combo_TargetStates.clear()
+
+        self.combo_CurrentStates.addItems(self.STATES)
+        self.combo_Transactions.addItems(self.ALPHABETS)
+        self.combo_TargetStates.addItems(self.STATES)
+
 
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
@@ -134,6 +144,9 @@ class Ui_MainWindow(object):
         self.toolBox.addItem(self.page_Alphabet, u"Alphabet")
         self.page_Transaction = QWidget()
         self.page_Transaction.setObjectName(u"page_Transaction")
+
+        self.page_Transaction.showEvent = lambda event: self.on_page_Transaction_shown(event)
+
         self.scrollArea_3 = QScrollArea(self.page_Transaction)
         self.scrollArea_3.setObjectName(u"scrollArea_3")
         self.scrollArea_3.setGeometry(QRect(0, 0, 301, 371))
@@ -162,6 +175,7 @@ class Ui_MainWindow(object):
         self.label_3 = QLabel(self.grb_StateName_3)
         self.label_3.setObjectName(u"label_3")
         self.label_3.setGeometry(QRect(20, 80, 71, 16))
+
         self.btn_add_Transaction = QPushButton(self.scrollAreaWidgetContents_3)
         self.btn_add_Transaction.setObjectName(u"btn_add_Transaction")
         self.btn_add_Transaction.setGeometry(QRect(110, 150, 75, 23))
