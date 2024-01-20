@@ -27,14 +27,30 @@ class Ui_MainWindow(object):
                 self.STATES.append(self.txt_StateName.toPlainText())
                 self.listWidget_StatesName.addItem(self.STATES[-1])
 
-    def remove_selected_item(self):
+    def on_btn_add_Alphabet(self):
+        user_input = self.txt_Alphabet.toPlainText()
+        if len(user_input) == 1:
+            if user_input not in self.STATES:
+                self.ALPHABETS.append(self.txt_Alphabet.toPlainText())
+                self.listWidget_Alphabet.addItem(self.ALPHABETS[-1])
+
+    
+    def remove_selected_item_listwidget_states(self):
         selected_items = self.listWidget_StatesName.selectedItems()
 
         for item in selected_items:
             row = self.listWidget_StatesName.row(item)
-            state_name = item.text()
-            self.STATES.remove(state_name)
+            self.STATES.remove(item.text())
             self.listWidget_StatesName.takeItem(row)
+            del item
+
+    def remove_selected_item_listwidget_alphabet(self):
+        selected_items = self.listWidget_Alphabet.selectedItems()
+
+        for item in selected_items:
+            row = self.listWidget_Alphabet.row(item)
+            self.ALPHABETS.remove(item.text())
+            self.listWidget_Alphabet.takeItem(row)
             del item
 
     def setupUi(self, MainWindow):
@@ -81,7 +97,7 @@ class Ui_MainWindow(object):
         self.btn_remove_StateName.setGeometry(QRect(110, 300, 75, 23))
 
         self.btn_add_StateName.clicked.connect(self.on_btn_add_StateName)
-        self.btn_remove_StateName.clicked.connect(self.remove_selected_item)
+        self.btn_remove_StateName.clicked.connect(self.remove_selected_item_listwidget_states)
 
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.toolBox.addItem(self.tool_box_state, u"State")
@@ -110,6 +126,10 @@ class Ui_MainWindow(object):
         self.btn_remove_Alphabet = QPushButton(self.scrollAreaWidgetContents_2)
         self.btn_remove_Alphabet.setObjectName(u"btn_remove_Alphabet")
         self.btn_remove_Alphabet.setGeometry(QRect(110, 300, 75, 23))
+
+        self.btn_add_Alphabet.clicked.connect(self.on_btn_add_Alphabet)
+        self.btn_remove_Alphabet.clicked.connect(self.remove_selected_item_listwidget_alphabet)
+
         self.scrollArea_2.setWidget(self.scrollAreaWidgetContents_2)
         self.toolBox.addItem(self.page_Alphabet, u"Alphabet")
         self.page_Transaction = QWidget()
