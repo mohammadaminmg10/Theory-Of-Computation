@@ -26,6 +26,7 @@ class Ui_MainWindow(object):
             if user_input not in self.STATES:
                 self.STATES.append(self.txt_StateName.toPlainText())
                 self.listWidget_StatesName.addItem(self.STATES[-1])
+                self.update_initial_and_final_state()
 
     def on_btn_add_Alphabet(self):
         user_input = self.txt_Alphabet.toPlainText()
@@ -33,7 +34,6 @@ class Ui_MainWindow(object):
             if user_input not in self.ALPHABETS:
                 self.ALPHABETS.append(self.txt_Alphabet.toPlainText())
                 self.listWidget_Alphabet.addItem(self.ALPHABETS[-1])
-
     
     def remove_selected_item_listwidget_states(self):
         selected_items = self.listWidget_StatesName.selectedItems()
@@ -43,6 +43,7 @@ class Ui_MainWindow(object):
             self.STATES.remove(item.text())
             self.listWidget_StatesName.takeItem(row)
             del item
+            self.update_initial_and_final_state()
 
     def remove_selected_item_listwidget_alphabet(self):
         selected_items = self.listWidget_Alphabet.selectedItems()
@@ -63,6 +64,13 @@ class Ui_MainWindow(object):
         self.combo_TargetStates.addItems(self.STATES)
 
         self.populate_table()
+
+    def update_initial_and_final_state(self):
+        self.combo_InitialState.clear()
+        self.combo_FinalState.clear()
+
+        self.combo_InitialState.addItems(self.STATES)
+        self.combo_FinalState.addItems(self.STATES)
 
     def on_btn_add_Transaction(self):
         current_state = self.combo_CurrentStates.currentText()
