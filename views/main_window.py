@@ -62,6 +62,24 @@ class Ui_MainWindow(object):
         self.combo_Transactions.addItems(self.ALPHABETS)
         self.combo_TargetStates.addItems(self.STATES)
 
+        self.populate_table()
+
+    def on_btn_add_Transaction(self):
+        current_state = self.combo_CurrentStates.currentText()
+        transaction = self.combo_Transactions.currentText()
+        target_state = self.combo_TargetStates.currentText()
+
+        self.TRANSACTIONS[(current_state, transaction)] = target_state
+        self.populate_table()
+
+
+    def populate_table(self):
+        self.tableWidget_Transaction.setRowCount(len(self.TRANSACTIONS))
+        for row_index, ((current_state, transaction), target_state) in enumerate(self.TRANSACTIONS.items()):
+            self.tableWidget_Transaction.setItem(row_index, 0, QTableWidgetItem(current_state))
+            self.tableWidget_Transaction.setItem(row_index, 1, QTableWidgetItem(transaction))
+            self.tableWidget_Transaction.setItem(row_index, 2, QTableWidgetItem(target_state))
+
 
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
@@ -179,6 +197,9 @@ class Ui_MainWindow(object):
         self.btn_add_Transaction = QPushButton(self.scrollAreaWidgetContents_3)
         self.btn_add_Transaction.setObjectName(u"btn_add_Transaction")
         self.btn_add_Transaction.setGeometry(QRect(110, 150, 75, 23))
+
+        self.btn_add_Transaction.clicked.connect(self.on_btn_add_Transaction)
+
         self.tableWidget_Transaction = QTableWidget(self.scrollAreaWidgetContents_3)
         if (self.tableWidget_Transaction.columnCount() < 3):
             self.tableWidget_Transaction.setColumnCount(3)
