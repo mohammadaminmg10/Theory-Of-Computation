@@ -9,7 +9,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
 
 if __name__ == "__main__":
-    app = QApplication([])  # Create the application object
-    main_window = MyMainWindow()  # Create an instance of your MainWindow class
-    main_window.show()  # Show the main window
-    sys.exit(app.exec_())  # Start the application event loop
+    app = QApplication([])
+    main_window = MyMainWindow()
+    main_window.show()
+    sys.exit(app.exec_())

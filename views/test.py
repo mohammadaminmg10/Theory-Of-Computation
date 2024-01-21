@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'untitledNsDmWk.ui'
+## Form generated from reading UI file 'untitledhOJwFR.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.2
 ##
@@ -12,142 +12,8 @@ from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
-from logic.dfa import Dfa
-
 
 class Ui_MainWindow(object):
-    STATES = []
-    ALPHABETS = []
-    TRANSACTIONS = {}
-    START_STATE = ''
-    ACCEPT_STATES = []
-
-    def on_btn_add_StateName(self):
-        user_input = self.txt_StateName.toPlainText()
-        if user_input != "":
-            if user_input not in self.STATES:
-                if self.cb_finall_state.isChecked() == True:
-                    self.ACCEPT_STATES.append(self.txt_StateName.toPlainText())
-                self.STATES.append(self.txt_StateName.toPlainText())
-                self.listWidget_StatesName.addItem(self.STATES[-1])
-                self.update_initial_and_final_state()
-
-    def on_btn_add_Alphabet(self):
-        user_input = self.txt_Alphabet.toPlainText()
-        if len(user_input) == 1:
-            if user_input not in self.ALPHABETS:
-                self.ALPHABETS.append(self.txt_Alphabet.toPlainText())
-                self.listWidget_Alphabet.addItem(self.ALPHABETS[-1])
-    
-    def remove_selected_item_listwidget_states(self):
-        selected_items = self.listWidget_StatesName.selectedItems()
-
-        for item in selected_items:
-            row = self.listWidget_StatesName.row(item)
-            self.STATES.remove(item.text())
-            self.ACCEPT_STATES.remove(item.text())
-            self.listWidget_StatesName.takeItem(row)
-            del item
-            self.update_initial_and_final_state()
-
-    def remove_selected_item_listwidget_alphabet(self):
-        selected_items = self.listWidget_Alphabet.selectedItems()
-
-        for item in selected_items:
-            row = self.listWidget_Alphabet.row(item)
-            self.ALPHABETS.remove(item.text())
-            self.listWidget_Alphabet.takeItem(row)
-            del item
-
-    def on_page_Transaction_shown(self, event):
-        self.combo_CurrentStates.clear()
-        self.combo_Transactions.clear()
-        self.combo_TargetStates.clear()
-
-        self.combo_CurrentStates.addItems(self.STATES)
-        self.combo_Transactions.addItems(self.ALPHABETS)
-        self.combo_TargetStates.addItems(self.STATES)
-
-        self.populate_table()
-
-    def update_initial_and_final_state(self):
-        self.combo_InitialState.clear()
-
-        self.combo_InitialState.addItems(self.STATES)
-
-    def on_btn_add_Transaction(self):
-        current_state = self.combo_CurrentStates.currentText()
-        transaction = self.combo_Transactions.currentText()
-        target_state = self.combo_TargetStates.currentText()
-
-        self.TRANSACTIONS[(current_state, transaction)] = target_state
-        self.populate_table()
-
-
-    def populate_table(self):
-        self.tableWidget_Transaction.setRowCount(len(self.TRANSACTIONS))
-        for row_index, ((current_state, transaction), target_state) in enumerate(self.TRANSACTIONS.items()):
-            self.tableWidget_Transaction.setItem(row_index, 0, QTableWidgetItem(current_state))
-            self.tableWidget_Transaction.setItem(row_index, 1, QTableWidgetItem(transaction))
-            self.tableWidget_Transaction.setItem(row_index, 2, QTableWidgetItem(target_state))
-
-
-    def on_btn_save(self):
-        self.START_STATE = self.combo_InitialState.currentText()
-        dfa = Dfa(
-            states=self.STATES,
-            alphabet=self.ALPHABETS,
-            transitions=self.TRANSACTIONS,
-            start_state=self.START_STATE,
-            accept_states=self.ACCEPT_STATES
-        )
-        if dfa.is_empty_language():
-            self.lbl_result_is_empty_language.setText("Is Empty")
-        else:
-            self.lbl_result_is_empty_language.setText("Isn't Empty")
-
-        if dfa.is_finite():
-            self.lbl_result_is_finite.setText("Is finite")
-        else:
-            self.lbl_result_is_finite.setText("Isn't finite")
-
-    
-    def on_test_string(self):
-        dfa = Dfa(
-            states=self.STATES,
-            alphabet=self.ALPHABETS,
-            transitions=self.TRANSACTIONS,
-            start_state=self.START_STATE,
-            accept_states=self.ACCEPT_STATES
-        )
-        if dfa.accepts_string(self.textEdit_2.toPlainText()):
-            self.lbl_result_test_string.setText("Accepted")
-        else:
-            self.lbl_result_test_string.setText("Not accepted")
-    
-    def on_page_Minimize_shown(self, event):
-        dfa = Dfa(
-            states=self.STATES,
-            alphabet=self.ALPHABETS,
-            transitions=self.TRANSACTIONS,
-            start_state=self.START_STATE,
-            accept_states=self.ACCEPT_STATES
-        )
-        new_dfa = dfa.minimize()
-        
-        self.listWidget_MinimizeTab_StateName.clear()
-        self.listWidget_MinimizeTab_StateName.addItems(new_dfa.states)
-
-        self.listWidget_MinimizeTab_Alphabet.clear()
-        self.listWidget_MinimizeTab_Alphabet.addItems(new_dfa.alphabet)
-
-        self.tableWidget_Minimize_Transaction.setRowCount(len(new_dfa.transitions))
-        for row_index, ((current_state, transaction), target_state) in enumerate(new_dfa.transitions.items()):
-            self.tableWidget_Minimize_Transaction.setItem(row_index, 0, QTableWidgetItem(current_state))
-            self.tableWidget_Minimize_Transaction.setItem(row_index, 1, QTableWidgetItem(transaction))
-            self.tableWidget_Minimize_Transaction.setItem(row_index, 2, QTableWidgetItem(target_state))
-
-
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
@@ -161,7 +27,7 @@ class Ui_MainWindow(object):
         self.DFA_tab.setObjectName(u"DFA_tab")
         self.groupBox = QGroupBox(self.DFA_tab)
         self.groupBox.setObjectName(u"groupBox")
-        self.groupBox.setGeometry(QRect(20, 10, 1031, 681))
+        self.groupBox.setGeometry(QRect(20, 10, 1031, 6finall81))
         self.toolBox = QToolBox(self.groupBox)
         self.toolBox.setObjectName(u"toolBox")
         self.toolBox.setGeometry(QRect(10, 30, 301, 461))
@@ -193,10 +59,6 @@ class Ui_MainWindow(object):
         self.btn_remove_StateName = QPushButton(self.scrollAreaWidgetContents)
         self.btn_remove_StateName.setObjectName(u"btn_remove_StateName")
         self.btn_remove_StateName.setGeometry(QRect(110, 300, 75, 23))
-
-        self.btn_add_StateName.clicked.connect(self.on_btn_add_StateName)
-        self.btn_remove_StateName.clicked.connect(self.remove_selected_item_listwidget_states)
-
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.toolBox.addItem(self.tool_box_state, u"State")
         self.page_Alphabet = QWidget()
@@ -224,17 +86,11 @@ class Ui_MainWindow(object):
         self.btn_remove_Alphabet = QPushButton(self.scrollAreaWidgetContents_2)
         self.btn_remove_Alphabet.setObjectName(u"btn_remove_Alphabet")
         self.btn_remove_Alphabet.setGeometry(QRect(110, 300, 75, 23))
-
-        self.btn_add_Alphabet.clicked.connect(self.on_btn_add_Alphabet)
-        self.btn_remove_Alphabet.clicked.connect(self.remove_selected_item_listwidget_alphabet)
-
         self.scrollArea_2.setWidget(self.scrollAreaWidgetContents_2)
         self.toolBox.addItem(self.page_Alphabet, u"Alphabet")
         self.page_Transaction = QWidget()
         self.page_Transaction.setObjectName(u"page_Transaction")
-
-        self.page_Transaction.showEvent = lambda event: self.on_page_Transaction_shown(event)
-
+        self.page_Transaction.setGeometry(QRect(0, 0, 301, 380))
         self.scrollArea_3 = QScrollArea(self.page_Transaction)
         self.scrollArea_3.setObjectName(u"scrollArea_3")
         self.scrollArea_3.setGeometry(QRect(0, 0, 301, 371))
@@ -263,13 +119,9 @@ class Ui_MainWindow(object):
         self.label_3 = QLabel(self.grb_StateName_3)
         self.label_3.setObjectName(u"label_3")
         self.label_3.setGeometry(QRect(20, 80, 71, 16))
-
         self.btn_add_Transaction = QPushButton(self.scrollAreaWidgetContents_3)
         self.btn_add_Transaction.setObjectName(u"btn_add_Transaction")
         self.btn_add_Transaction.setGeometry(QRect(110, 150, 75, 23))
-
-        self.btn_add_Transaction.clicked.connect(self.on_btn_add_Transaction)
-
         self.tableWidget_Transaction = QTableWidget(self.scrollAreaWidgetContents_3)
         if (self.tableWidget_Transaction.columnCount() < 3):
             self.tableWidget_Transaction.setColumnCount(3)
@@ -292,6 +144,9 @@ class Ui_MainWindow(object):
         self.combo_InitialState = QComboBox(self.groupBox)
         self.combo_InitialState.setObjectName(u"combo_InitialState")
         self.combo_InitialState.setGeometry(QRect(130, 520, 121, 22))
+        self.combo_FinalState = QComboBox(self.groupBox)
+        self.combo_FinalState.setObjectName(u"combo_FinalState")
+        self.combo_FinalState.setGeometry(QRect(130, 550, 121, 22))
         self.groupBox_2 = QGroupBox(self.groupBox)
         self.groupBox_2.setObjectName(u"groupBox_2")
         self.groupBox_2.setGeometry(QRect(340, 20, 681, 641))
@@ -311,7 +166,7 @@ class Ui_MainWindow(object):
         self.label_7.setFont(font1)
         self.txt_DFAName = QToolBox(self.groupBox_2)
         self.txt_DFAName.setObjectName(u"txt_DFAName")
-        self.txt_DFAName.setGeometry(QRect(20, 132, 641, 501))        
+        self.txt_DFAName.setGeometry(QRect(20, 132, 641, 501))
         font2 = QFont()
         font2.setFamily(u"MS Shell Dlg 2")
         font2.setPointSize(12)
@@ -343,9 +198,6 @@ class Ui_MainWindow(object):
         self.pushButton_2 = QPushButton(self.page)
         self.pushButton_2.setObjectName(u"pushButton_2")
         self.pushButton_2.setGeometry(QRect(260, 160, 121, 31))
-
-        self.pushButton_2.clicked.connect(self.on_test_string)
-
         font5 = QFont()
         font5.setFamily(u"Microsoft Sans Serif")
         font5.setPointSize(14)
@@ -355,7 +207,7 @@ class Ui_MainWindow(object):
         self.lbl_result_test_string.setGeometry(QRect(270, 250, 101, 51))
         font6 = QFont()
         font6.setFamily(u"Microsoft Sans Serif")
-        font6.setPointSize(12)
+        font6.setPointSize(16)
         font6.setBold(False)
         font6.setWeight(50)
         self.lbl_result_test_string.setFont(font6)
@@ -368,9 +220,6 @@ class Ui_MainWindow(object):
         self.toolBox_3 = QToolBox(self.Minimize)
         self.toolBox_3.setObjectName(u"toolBox_3")
         self.toolBox_3.setGeometry(QRect(30, 0, 581, 251))
-
-        self.toolBox_3.showEvent = lambda event: self.on_page_Minimize_shown(event)
-
         font7 = QFont()
         font7.setFamily(u"Microsoft Sans Serif")
         font7.setPointSize(8)
@@ -396,7 +245,7 @@ class Ui_MainWindow(object):
         self.toolBox_3.addItem(self.tool_box_state_3, u"State")
         self.page_Alphabet_3 = QWidget()
         self.page_Alphabet_3.setObjectName(u"page_Alphabet_3")
-        self.page_Alphabet_3.setGeometry(QRect(0, 0, 581, 170))
+        self.page_Alphabet_3.setGeometry(QRect(0, 0, 98, 28))
         self.scrollArea_8 = QScrollArea(self.page_Alphabet_3)
         self.scrollArea_8.setObjectName(u"scrollArea_8")
         self.scrollArea_8.setGeometry(QRect(0, 10, 581, 141))
@@ -414,7 +263,7 @@ class Ui_MainWindow(object):
         self.toolBox_3.addItem(self.page_Alphabet_3, u"Alphabet")
         self.page_Transaction_3 = QWidget()
         self.page_Transaction_3.setObjectName(u"page_Transaction_3")
-        self.page_Transaction_3.setGeometry(QRect(0, 0, 581, 170))
+        self.page_Transaction_3.setGeometry(QRect(0, 0, 98, 28))
         self.scrollArea_9 = QScrollArea(self.page_Transaction_3)
         self.scrollArea_9.setObjectName(u"scrollArea_9")
         self.scrollArea_9.setGeometry(QRect(0, 0, 581, 161))
@@ -438,6 +287,7 @@ class Ui_MainWindow(object):
         self.txt_DFAName.addItem(self.Minimize, u"Minimize")
         self.page_2 = QWidget()
         self.page_2.setObjectName(u"page_2")
+        self.page_2.setGeometry(QRect(0, 0, 641, 402))
         self.toolBox_4 = QToolBox(self.page_2)
         self.toolBox_4.setObjectName(u"toolBox_4")
         self.toolBox_4.setGeometry(QRect(20, 10, 601, 241))
@@ -471,7 +321,7 @@ class Ui_MainWindow(object):
         self.toolBox_4.addItem(self.tool_box_state_4, u"State")
         self.page_Alphabet_4 = QWidget()
         self.page_Alphabet_4.setObjectName(u"page_Alphabet_4")
-        self.page_Alphabet_4.setGeometry(QRect(0, 0, 601, 160))
+        self.page_Alphabet_4.setGeometry(QRect(0, 0, 98, 28))
         self.scrollArea_11 = QScrollArea(self.page_Alphabet_4)
         self.scrollArea_11.setObjectName(u"scrollArea_11")
         self.scrollArea_11.setGeometry(QRect(0, 10, 601, 131))
@@ -498,7 +348,7 @@ class Ui_MainWindow(object):
         self.toolBox_4.addItem(self.page_Alphabet_4, u"Alphabet")
         self.page_Transaction_4 = QWidget()
         self.page_Transaction_4.setObjectName(u"page_Transaction_4")
-        self.page_Transaction_4.setGeometry(QRect(0, 0, 601, 160))
+        self.page_Transaction_4.setGeometry(QRect(0, 0, 98, 28))
         self.scrollArea_12 = QScrollArea(self.page_Transaction_4)
         self.scrollArea_12.setObjectName(u"scrollArea_12")
         self.scrollArea_12.setGeometry(QRect(0, 0, 601, 151))
@@ -613,9 +463,6 @@ class Ui_MainWindow(object):
         self.btn_Save = QPushButton(self.groupBox)
         self.btn_Save.setObjectName(u"btn_Save")
         self.btn_Save.setGeometry(QRect(100, 620, 111, 31))
-
-        self.btn_Save.clicked.connect(self.on_btn_save)
-
         self.tabWidget.addTab(self.DFA_tab, "")
         self.regular_language_tab = QWidget()
         self.regular_language_tab.setObjectName(u"regular_language_tab")
@@ -626,7 +473,7 @@ class Ui_MainWindow(object):
 
         self.tabWidget.setCurrentIndex(0)
         self.toolBox.setCurrentIndex(0)
-        self.txt_DFAName.setCurrentIndex(0)
+        self.txt_DFAName.setCurrentIndex(1)
         self.toolBox_3.setCurrentIndex(0)
         self.toolBox_4.setCurrentIndex(0)
 

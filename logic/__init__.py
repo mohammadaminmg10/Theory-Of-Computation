@@ -1,1 +1,1 @@
-from dfa import DFA
+from logic.dfa import Dfa

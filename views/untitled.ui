@@ -91,9 +91,9 @@
            <property name="geometry">
             <rect>
              <x>30</x>
-             <y>40</y>
+             <y>20</y>
              <width>241</width>
-             <height>101</height>
+             <height>141</height>
             </rect>
            </property>
            <property name="title">
@@ -113,13 +113,26 @@
             <property name="geometry">
              <rect>
               <x>80</x>
-              <y>70</y>
+              <y>110</y>
               <width>75</width>
               <height>23</height>
              </rect>
             </property>
             <property name="text">
              <string>Add</string>
+            </property>
+           </widget>
+           <widget class="QCheckBox" name="cb_finall_state">
+            <property name="geometry">
+             <rect>
+              <x>30</x>
+              <y>70</y>
+              <width>70</width>
+              <height>17</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>finall state</string>
             </property>
            </widget>
           </widget>
@@ -245,6 +258,14 @@
         </widget>
        </widget>
        <widget class="QWidget" name="page_Transaction">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>301</width>
+          <height>380</height>
+         </rect>
+        </property>
         <attribute name="label">
          <string>Transaction</string>
         </attribute>
@@ -510,7 +531,7 @@
          </font>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="page">
          <property name="geometry">
@@ -728,8 +749,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>581</width>
-             <height>170</height>
+             <width>98</width>
+             <height>28</height>
             </rect>
            </property>
            <attribute name="label">
@@ -787,8 +808,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>581</width>
-             <height>170</height>
+             <width>98</width>
+             <height>28</height>
             </rect>
            </property>
            <attribute name="label">
@@ -846,6 +867,14 @@
          </widget>
         </widget>
         <widget class="QWidget" name="page_2">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>641</width>
+           <height>402</height>
+          </rect>
+         </property>
          <attribute name="label">
           <string>Equivalent</string>
          </attribute>
@@ -967,8 +996,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>601</width>
-             <height>160</height>
+             <width>98</width>
+             <height>28</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1062,8 +1091,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>601</width>
-             <height>160</height>
+             <width>98</width>
+             <height>28</height>
             </rect>
            </property>
            <attribute name="label">
