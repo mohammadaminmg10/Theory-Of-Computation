@@ -21,3 +21,4 @@ class Degree:
                 max_degree = max(max_degree, part_degree)
             return max_degree
         return float('-inf')
+    

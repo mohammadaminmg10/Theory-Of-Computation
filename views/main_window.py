@@ -102,6 +102,7 @@ class Ui_MainWindow(object):
 
 
     def on_btn_save(self):
+        self.listWidget_AllString.clear()
         self.START_STATE = self.combo_InitialState.currentText()
         dfa = Dfa(
             states=self.STATES,
@@ -120,6 +121,12 @@ class Ui_MainWindow(object):
         else:
             self.lbl_result_is_finite.setText("Isn't finite")
 
+        all_string = dfa.all_strings()
+        if all_string is not None:
+            self.lbl_result_allStrings.setText(str(all_string[1]))
+            self.listWidget_AllString.addItems(all_string[0])
+            if "" in all_string[0]:
+                self.listWidget_AllString.addItem("Empty string")
     
     def on_test_string(self):
         dfa = Dfa(
@@ -699,16 +706,30 @@ class Ui_MainWindow(object):
         self.txt_DFAName.addItem(self.page_2, u"Equivalent")
         self.lbl_result_is_empty_language = QLabel(self.groupBox_2)
         self.lbl_result_is_empty_language.setObjectName(u"lbl_result_is_empty_language")
-        self.lbl_result_is_empty_language.setGeometry(QRect(330, 20, 121, 51))
+        self.lbl_result_is_empty_language.setGeometry(QRect(160, 20, 121, 51))
         self.lbl_result_is_empty_language.setFont(font6)
         self.lbl_result_is_empty_language.setLayoutDirection(Qt.LeftToRight)
         self.lbl_result_is_empty_language.setAlignment(Qt.AlignCenter)
         self.lbl_result_is_finite = QLabel(self.groupBox_2)
         self.lbl_result_is_finite.setObjectName(u"lbl_result_is_finite")
-        self.lbl_result_is_finite.setGeometry(QRect(330, 70, 121, 51))
+        self.lbl_result_is_finite.setGeometry(QRect(160, 70, 121, 51))
         self.lbl_result_is_finite.setFont(font6)
         self.lbl_result_is_finite.setLayoutDirection(Qt.LeftToRight)
         self.lbl_result_is_finite.setAlignment(Qt.AlignCenter)
+        self.label_11 = QLabel(self.groupBox_2)
+        self.label_11.setObjectName(u"label_11")
+        self.label_11.setGeometry(QRect(260, 20, 191, 51))
+        self.label_11.setFont(font1)
+        self.label_11.setAlignment(Qt.AlignCenter)
+        self.lbl_result_allStrings = QLabel(self.groupBox_2)
+        self.lbl_result_allStrings.setObjectName(u"lbl_result_allStrings")
+        self.lbl_result_allStrings.setGeometry(QRect(450, 40, 101, 16))
+        self.lbl_result_allStrings.setFont(font6)
+        self.lbl_result_allStrings.setLayoutDirection(Qt.LeftToRight)
+        self.lbl_result_allStrings.setAlignment(Qt.AlignCenter)
+        self.listWidget_AllString = QListWidget(self.groupBox_2)
+        self.listWidget_AllString.setObjectName(u"listWidget_AllString")
+        self.listWidget_AllString.setGeometry(QRect(420, 70, 161, 51))
         self.txt_DFAName_2 = QTextEdit(self.groupBox)
         self.txt_DFAName_2.setObjectName(u"txt_DFAName_2")
         self.txt_DFAName_2.setEnabled(True)
@@ -825,6 +846,8 @@ class Ui_MainWindow(object):
         self.txt_DFAName.setItemText(self.txt_DFAName.indexOf(self.page_2), QCoreApplication.translate("MainWindow", u"Equivalent", None))
         self.lbl_result_is_empty_language.setText(QCoreApplication.translate("MainWindow", u"Result", None))
         self.lbl_result_is_finite.setText(QCoreApplication.translate("MainWindow", u"Result", None))
+        self.label_11.setText(QCoreApplication.translate("MainWindow", u"All strings:", None))
+        self.lbl_result_allStrings.setText(QCoreApplication.translate("MainWindow", u"Result", None))
 #if QT_CONFIG(tooltip)
         self.txt_DFAName_2.setToolTip("")
 #endif // QT_CONFIG(tooltip)

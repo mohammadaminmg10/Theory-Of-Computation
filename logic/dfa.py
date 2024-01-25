@@ -209,3 +209,4 @@ class Dfa:
                                 (next_state_2 in other_dfa.accept_states and next_state_1 not in self.accept_states):
                             return False
             return True
+        

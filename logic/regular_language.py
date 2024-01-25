@@ -295,3 +295,4 @@ class RegularExpressionAnalyzer:
             if not dfa2.accepts_string(string):
                 return False
         return True
+    
