@@ -1,6 +1,5 @@
 import unittest
 
-from dfa import Dfa
 from regular_language import RegularExpressionAnalyzer, NFA, DFA
 
 
@@ -143,4 +142,3 @@ class TestRegularExpressionAnalyzer(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-    

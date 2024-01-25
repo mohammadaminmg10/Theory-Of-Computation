@@ -1,5 +1,3 @@
-
-
 class DFA:
     def __init__(self, states, alphabet, transitions, start_state, accept_states):
         self.states = states
@@ -8,7 +6,140 @@ class DFA:
         self.start_state = start_state
         self.accept_states = accept_states
 
+    def minimize(self):
+        # firt check for unreachable states and delete them
+        global equivalent_groups
+        reachable_states = [self.start_state]
+        for state in reachable_states:
+            for symbol in self.alphabet:
+                if (state, symbol) in self.transitions:
+                    next_state = self.transitions[(state, symbol)]
+                    if next_state not in reachable_states:
+                        reachable_states.append(next_state)
 
+        self.states = reachable_states
+
+        # Step 1: Initialize the table
+        table_size = len(self.states)
+        table = []
+        for _ in range(table_size):
+            row = []
+            for _ in range(table_size):
+                row.append(False)
+            table.append(row)
+
+        # Mark non-accepting and accepting states as different
+        for i in range(len(self.states)):
+            for j in range(len(self.states)):
+                if (self.states[i] in self.accept_states and self.states[j] not in self.accept_states) or \
+                        (self.states[j] in self.accept_states and self.states[i] not in self.accept_states):
+                    table[i][j] = True
+
+        # Step 2: Mark pairs that lead to different states
+        changed = True
+        while changed:
+            changed = False
+            for i in range(len(self.states)):
+                for j in range(i + 1, len(self.states)):
+                    for symbol in self.alphabet:
+                        index_i = self.states.index(
+                            self.transitions[(self.states[i], symbol)])
+                        index_j = self.states.index(
+                            self.transitions[(self.states[j], symbol)])
+                        if table[index_i][index_j] or table[index_j][index_i]:
+                            if not table[i][j]:
+                                table[i][j] = True
+                                changed = True
+
+            # Step 3: Merge equivalent states
+            equivalent_groups = []
+            for i in range(len(self.states)):
+                for j in range(i + 1, len(self.states)):
+                    if not table[i][j]:
+                        found = False
+                        for group in equivalent_groups:
+                            if self.states[i] in group or self.states[j] in group:
+                                group.add(self.states[i])
+                                group.add(self.states[j])
+                                found = True
+                                break
+                        if not found:
+                            equivalent_groups.append({self.states[i], self.states[j]})
+
+        # Reconstruct the minimized DFA
+        new_start_state = None
+        if equivalent_groups or len(self.states) > len(equivalent_groups):
+            new_states = []
+            new_transitions = {}
+            new_accept_states = []
+
+            for state in self.states:
+                found = False
+                for group in equivalent_groups:
+                    if state in group:
+                        found = True
+                        break
+                if not found:
+                    equivalent_groups.append({state})
+
+            for group in equivalent_groups:
+                group = sorted(group)
+                try:
+                    new_state = ",".join(group)
+                except:
+                    new_state = ""
+                    for i in new_state:
+                        new_state += i
+                new_states.append(new_state)
+
+                if list(group)[0] == self.start_state:
+                    new_start_state = new_state
+
+                if any(state in self.accept_states for state in group):
+                    new_accept_states.append(new_state)
+
+            for group in equivalent_groups:
+                for symbol in self.alphabet:
+                    next_state = None
+                    for state in group:
+                        state_trans = self.transitions.get((state, symbol))
+                        if state_trans:
+                            next_group = None
+                            for eq_group in equivalent_groups:
+                                if state_trans in eq_group:
+                                    next_group = sorted(eq_group)
+                                    break
+                            if next_group:
+                                next_state = ",".join(next_group)
+                                break
+                    if next_state:
+                        new_transitions[(",".join(sorted(group)), symbol)] = next_state
+
+            self.start_state = new_start_state
+            self.transitions = new_transitions
+            self.states = new_states
+            self.accept_states = new_accept_states
+            return DFA(new_states, self.alphabet, new_transitions, new_start_state, new_accept_states)
+        else:
+            return self  # No minimization needed
+
+    def are_equivalent(self, other_dfa):
+
+        for dfa_1, dfa_2 in zip(self.start_state, other_dfa.start_state):
+            if (dfa_1 in self.accept_states and dfa_2 not in other_dfa.accept_states) or \
+                    (dfa_2 in other_dfa.accept_states and dfa_1 not in self.accept_states):
+                return False
+            for state_1, state_2 in zip(self.states, other_dfa.states):
+                for symbol_1, symbol_2 in zip(self.alphabet, other_dfa.alphabet):
+                    if ((state_1, symbol_1) in self.transitions) and ((state_2, symbol_2) in other_dfa.transitions):
+                        next_state_1 = self.transitions[(state_1, symbol_1)]
+                        next_state_2 = other_dfa.transitions[(
+                            state_2, symbol_2)]
+                        if (next_state_1 in self.accept_states and next_state_2 not in other_dfa.accept_states) or \
+                                (next_state_2 in other_dfa.accept_states and next_state_1 not in self.accept_states):
+                            return False
+            return True
+        
 class NFA:
     def __init__(self, states, alphabet, transitions, start_state, accept_states):
         self.states = states
@@ -79,16 +210,6 @@ class RegularExpressionAnalyzer:
         def _concatenate_nfas(nfa1, nfa2):
             new_start = nfa1.start_state
             new_accept = nfa2.accept_states
-            # for state in nfa1.transitions:
-            #     if state != 'ε':
-            #         for symbol in nfa1.transitions[state]:
-            #             if symbol != 'ε':
-            #                 nfa1.transitions[state][symbol] = [state + suffix for suffix in nfa1.transitions[state][symbol]]
-            # for state in nfa2.transitions:
-            #     if state != 'ε':
-            #         for symbol in nfa2.transitions[state]:
-            #             if symbol != 'ε':
-            #                 nfa2.transitions[state][symbol] = [state + suffix for suffix in nfa2.transitions[state][symbol]]
 
             for state in nfa1.accept_states:
                 if 'ε' not in nfa1.transitions[state]:
@@ -182,17 +303,10 @@ class RegularExpressionAnalyzer:
             elif char == '+':
                 # this means we should have at least 1 expression of its previous expression; shuch as (ab)+
                 nfa = stack.pop()
-                # start_state = _create_state()
-                # accept_state = _create_state()
-                # transitions = {
-                #     start_state: {},
-                #     accept_state: {}
-                # }
 
                 for state in nfa.accept_states:
                     if 'ε' not in nfa.transitions[state]:
                         nfa.transitions[state]['ε'] = [nfa.start_state]
-                    # nfa.transitions[state]['ε'].extend([nfa.start_state, accept_state])
                 transitions[start_state]['ε'] = [nfa.start_state, accept_state]
 
                 new_nfa = NFA(
@@ -279,8 +393,11 @@ class RegularExpressionAnalyzer:
         dfa1 = self.to_dfa(expression1)  # Convert expression1 to a Dfa object
         dfa2 = self.to_dfa(expression2)  # Convert expression2 to a Dfa object
 
+        minimized_dfa1 = dfa1.minimize()
+        minimized_dfa2 = dfa2.minimize()
         # Use are_equivalent method from the Dfa class to compare languages
-        return dfa1.are_equivalent(dfa2)
+        
+        return minimized_dfa1.are_equivalent(minimized_dfa2)
 
     def is_relation(self, expression1, expression2):
         if self.is_subset(expression1, expression2) or self.is_subset(expression2, expression1):
@@ -290,11 +407,18 @@ class RegularExpressionAnalyzer:
         dfa1 = self.to_dfa(expression1)
         dfa2 = self.to_dfa(expression2)
 
-        minimized_dfa1 = dfa1.minimize()
-        minimized_dfa2 = dfa2.minimize()
+        def are_dfas_subsets(dfa1, dfa2):
+            state_mapping = {state1: state2 for state1, state2 in zip(dfa1.states, dfa2.states)}
+            if set(dfa1.alphabet) <= set(dfa2.alphabet):
+                if all(
+                    state_mapping[state1] in dfa2.transitions and symbol in dfa2.transitions[state_mapping[state1]]
+                    for state1 in dfa1.transitions
+                    for symbol in dfa1.transitions[state1]
+                ):
+                    if state_mapping[dfa1.start_state] in dfa2.states:
+                        if set(state_mapping[state1] for state1 in dfa1.accept_states) <= set(dfa2.states):
+                            return True
 
-        for string in minimized_dfa1.all_strings():
-            if not minimized_dfa2.accepts_string(string):
-                return False
-        return True
+            return False
+        return are_dfas_subsets(dfa1, dfa2)
     
