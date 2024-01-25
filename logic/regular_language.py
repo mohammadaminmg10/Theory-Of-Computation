@@ -1,4 +1,3 @@
-import re
 
 
 class DFA:
@@ -291,8 +290,11 @@ class RegularExpressionAnalyzer:
         dfa1 = self.to_dfa(expression1)
         dfa2 = self.to_dfa(expression2)
 
-        for string in dfa1.all_strings():
-            if not dfa2.accepts_string(string):
+        minimized_dfa1 = dfa1.minimize()
+        minimized_dfa2 = dfa2.minimize()
+
+        for string in minimized_dfa1.all_strings():
+            if not minimized_dfa2.accepts_string(string):
                 return False
         return True
     

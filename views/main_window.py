@@ -13,6 +13,7 @@ from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
 from logic.dfa import Dfa
+from logic.regular_language import RegularExpressionAnalyzer
 
 
 class Ui_MainWindow(object):
@@ -27,6 +28,9 @@ class Ui_MainWindow(object):
     TRANSACTIONS_1 = {}
     START_STATE_1 = ''
     ACCEPT_STATES_1 = []
+
+    Expression_1 = ''
+    Expression_2 = ''
 
     def on_btn_add_StateName(self):
         user_input = self.txt_StateName.toPlainText()
@@ -256,6 +260,66 @@ class Ui_MainWindow(object):
 
 
 
+    def on_btn_Save_Expression_1(self):
+        regex_analyzer = RegularExpressionAnalyzer()
+        input_user = self.txt_Expression_1.toPlainText()
+        self.Expression_1 = input_user
+        if regex_analyzer.is_regular(input_user):
+            self.lbl_result_is_regular_language.setText("Yes, Is regular")
+            result_dfa = regex_analyzer.to_dfa(input_user)
+            for i in list(result_dfa.states):
+                self.listWidget_RE_DFATab_StateName.addItem(", ".join(i))
+            #self.listWidget_RE_DFATab_StateName.addItems(list(result_dfa.states))
+            self.listWidget_RE_DFATab_Alphabet.addItems(list(result_dfa.alphabet))
+            transitions = self.modify_dictionary_transaction(result_dfa.transitions)
+            self.tableWidget_RE_DFATab_Transaction.setRowCount(len(transitions))
+            for row_index, ((current_state, transaction), target_state) in enumerate(transitions.items()):
+                self.tableWidget_RE_DFATab_Transaction.setItem(row_index, 0, QTableWidgetItem(current_state))
+                self.tableWidget_RE_DFATab_Transaction.setItem(row_index, 1, QTableWidgetItem(transaction))
+                self.tableWidget_RE_DFATab_Transaction.setItem(row_index, 2, QTableWidgetItem(target_state))
+        else:
+            self.lbl_result_is_regular_language.setText("No, Isn't regular")
+        result_nfa = regex_analyzer.to_nfa(input_user)
+        # for i in list(result_nfa.states):
+        #     self.listWidget_RE_NFATab_StateName.addItem(i)
+        self.listWidget_RE_NFATab_StateName.addItems(list(result_nfa.states))
+        self.listWidget_RE_NFATab_Alphabet.addItems(list(result_nfa.alphabet))
+        transitions = self.modify_dictionary_transaction(result_nfa.transitions)
+        self.tableWidget_RE_NFATab_Transaction.setRowCount(len(transitions))
+        for row_index, ((current_state, transaction), target_state) in enumerate(transitions.items()):
+            self.tableWidget_RE_NFATab_Transaction.setItem(row_index, 0, QTableWidgetItem(current_state))
+            self.tableWidget_RE_NFATab_Transaction.setItem(row_index, 1, QTableWidgetItem(transaction))
+            self.tableWidget_RE_NFATab_Transaction.setItem(row_index, 2, QTableWidgetItem(target_state))
+
+    def modify_dictionary_transaction(self, entry_transitions):
+        transitions = {}
+        for current_states, transitions_dict in entry_transitions.items():
+            if len(current_states) != 1:
+                    current_states = ", ".join(current_states)
+            else:
+                current_states = str(current_states[0])
+            for symbol, next_state in transitions_dict.items():
+                if len(next_state) != 1:
+                    next_state = ", ".join(next_state)
+                else:
+                    next_state = str(next_state[0])      
+                transitions[(current_states, symbol)] = next_state
+        return transitions
+    
+    def on_btn_Save_Expression_2(self):
+        self.Expression_2 = self.txt_Expression_2.toPlainText()
+        regex_analyzer = RegularExpressionAnalyzer()
+        if regex_analyzer.is_regular(self.Expression_1) and regex_analyzer.is_regular(self.Expression_2):
+            if regex_analyzer.compare_languages(self.Expression_1, self.Expression_2):
+                self.lbl_result_Are_languages_equvalent.setText("Yes")
+            else:
+                self.lbl_result_Are_languages_equvalent.setText("No")
+
+            if regex_analyzer.is_relation(self.Expression_1, self.Expression_2):
+                self.lbl_result_is_there_a_relation.setText("Yes")
+            else:
+                self.lbl_result_is_there_a_relation.setText("No")
+                
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
@@ -753,6 +817,222 @@ class Ui_MainWindow(object):
         self.tabWidget.addTab(self.DFA_tab, "")
         self.regular_language_tab = QWidget()
         self.regular_language_tab.setObjectName(u"regular_language_tab")
+
+
+        self.groupBox_3 = QGroupBox(self.regular_language_tab)
+        self.groupBox_3.setObjectName(u"groupBox_3")
+        self.groupBox_3.setGeometry(QRect(19, 9, 1031, 691))
+        self.label_5 = QLabel(self.groupBox_3)
+        self.label_5.setObjectName(u"label_5")
+        self.label_5.setGeometry(QRect(310, 40, 191, 51))
+        self.label_5.setFont(font1)
+        self.txt_Expression_1 = QTextEdit(self.groupBox_3)
+        self.txt_Expression_1.setObjectName(u"txt_Expression_1")
+        self.txt_Expression_1.setEnabled(True)
+        self.txt_Expression_1.setGeometry(QRect(410, 50, 231, 31))
+        self.txt_Expression_1.setFont(font4)
+        self.txt_Expression_1.setMouseTracking(False)
+        self.txt_Expression_1.setAutoFillBackground(False)
+        self.txt_Expression_1.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.txt_Expression_1.setUndoRedoEnabled(True)
+        self.btn_Save_Expression_1 = QPushButton(self.groupBox_3)
+        self.btn_Save_Expression_1.setObjectName(u"btn_Save_Expression_1")
+        self.btn_Save_Expression_1.setGeometry(QRect(470, 110, 111, 31))
+
+        self.btn_Save_Expression_1.clicked.connect(self.on_btn_Save_Expression_1)
+
+        self.label_14 = QLabel(self.groupBox_3)
+        self.label_14.setObjectName(u"label_14")
+        self.label_14.setGeometry(QRect(310, 180, 191, 51))
+        self.label_14.setFont(font1)
+        self.lbl_result_is_regular_language = QLabel(self.groupBox_3)
+        self.lbl_result_is_regular_language.setObjectName(u"lbl_result_is_regular_language")
+        self.lbl_result_is_regular_language.setGeometry(QRect(570, 180, 121, 51))
+        self.lbl_result_is_regular_language.setFont(font6)
+        self.lbl_result_is_regular_language.setLayoutDirection(Qt.LeftToRight)
+        self.lbl_result_is_regular_language.setAlignment(Qt.AlignCenter)
+        self.toolBox_2 = QToolBox(self.groupBox_3)
+        self.toolBox_2.setObjectName(u"toolBox_2")
+        self.toolBox_2.setGeometry(QRect(150, 260, 751, 391))
+        self.page_3 = QWidget()
+        self.page_3.setObjectName(u"page_3")
+        self.page_3.setGeometry(QRect(0, 0, 751, 310))
+        self.toolBox_5 = QToolBox(self.page_3)
+        self.toolBox_5.setObjectName(u"toolBox_5")
+        self.toolBox_5.setGeometry(QRect(60, 0, 611, 261))
+        self.toolBox_5.setFont(font7)
+        self.tool_box_state_5 = QWidget()
+        self.tool_box_state_5.setObjectName(u"tool_box_state_5")
+        self.tool_box_state_5.setGeometry(QRect(0, 0, 611, 180))
+        self.scrollArea_13 = QScrollArea(self.tool_box_state_5)
+        self.scrollArea_13.setObjectName(u"scrollArea_13")
+        self.scrollArea_13.setGeometry(QRect(20, 0, 561, 171))
+        self.scrollArea_13.setWidgetResizable(True)
+        self.scrollAreaWidgetContents_13 = QWidget()
+        self.scrollAreaWidgetContents_13.setObjectName(u"scrollAreaWidgetContents_13")
+        self.scrollAreaWidgetContents_13.setGeometry(QRect(0, 0, 559, 169))
+        self.grb_StateName_12 = QGroupBox(self.scrollAreaWidgetContents_13)
+        self.grb_StateName_12.setObjectName(u"grb_StateName_12")
+        self.grb_StateName_12.setGeometry(QRect(10, 10, 541, 131))
+        self.grb_StateName_12.setFont(font7)
+        self.listWidget_RE_DFATab_StateName = QListWidget(self.grb_StateName_12)
+        self.listWidget_RE_DFATab_StateName.setObjectName(u"listWidget_RE_DFATab_StateName")
+        self.listWidget_RE_DFATab_StateName.setGeometry(QRect(20, 20, 501, 101))
+        self.scrollArea_13.setWidget(self.scrollAreaWidgetContents_13)
+        self.toolBox_5.addItem(self.tool_box_state_5, u"State")
+        self.page_Alphabet_5 = QWidget()
+        self.page_Alphabet_5.setObjectName(u"page_Alphabet_5")
+        self.page_Alphabet_5.setGeometry(QRect(0, 0, 611, 180))
+        self.scrollArea_14 = QScrollArea(self.page_Alphabet_5)
+        self.scrollArea_14.setObjectName(u"scrollArea_14")
+        self.scrollArea_14.setGeometry(QRect(20, 10, 561, 141))
+        self.scrollArea_14.setWidgetResizable(True)
+        self.scrollAreaWidgetContents_14 = QWidget()
+        self.scrollAreaWidgetContents_14.setObjectName(u"scrollAreaWidgetContents_14")
+        self.scrollAreaWidgetContents_14.setGeometry(QRect(0, 0, 559, 139))
+        self.grb_StateName_13 = QGroupBox(self.scrollAreaWidgetContents_14)
+        self.grb_StateName_13.setObjectName(u"grb_StateName_13")
+        self.grb_StateName_13.setGeometry(QRect(10, 10, 541, 121))
+        self.listWidget_RE_DFATab_Alphabet = QListWidget(self.grb_StateName_13)
+        self.listWidget_RE_DFATab_Alphabet.setObjectName(u"listWidget_RE_DFATab_Alphabet")
+        self.listWidget_RE_DFATab_Alphabet.setGeometry(QRect(10, 10, 521, 101))
+        self.scrollArea_14.setWidget(self.scrollAreaWidgetContents_14)
+        self.toolBox_5.addItem(self.page_Alphabet_5, u"Alphabet")
+        self.page_Transaction_5 = QWidget()
+        self.page_Transaction_5.setObjectName(u"page_Transaction_5")
+        self.page_Transaction_5.setGeometry(QRect(0, 0, 611, 180))
+        self.scrollArea_15 = QScrollArea(self.page_Transaction_5)
+        self.scrollArea_15.setObjectName(u"scrollArea_15")
+        self.scrollArea_15.setGeometry(QRect(20, 0, 561, 161))
+        self.scrollArea_15.setWidgetResizable(True)
+        self.scrollAreaWidgetContents_15 = QWidget()
+        self.scrollAreaWidgetContents_15.setObjectName(u"scrollAreaWidgetContents_15")
+        self.scrollAreaWidgetContents_15.setGeometry(QRect(0, 0, 559, 159))
+        self.tableWidget_RE_DFATab_Transaction = QTableWidget(self.scrollAreaWidgetContents_15)
+        if (self.tableWidget_RE_DFATab_Transaction.columnCount() < 3):
+            self.tableWidget_RE_DFATab_Transaction.setColumnCount(3)
+        __qtablewidgetitem9 = QTableWidgetItem()
+        self.tableWidget_RE_DFATab_Transaction.setHorizontalHeaderItem(0, __qtablewidgetitem9)
+        __qtablewidgetitem10 = QTableWidgetItem()
+        self.tableWidget_RE_DFATab_Transaction.setHorizontalHeaderItem(1, __qtablewidgetitem10)
+        __qtablewidgetitem11 = QTableWidgetItem()
+        self.tableWidget_RE_DFATab_Transaction.setHorizontalHeaderItem(2, __qtablewidgetitem11)
+        self.tableWidget_RE_DFATab_Transaction.setObjectName(u"tableWidget_RE_DFATab_Transaction")
+        self.tableWidget_RE_DFATab_Transaction.setGeometry(QRect(0, 0, 581, 181))
+        self.scrollArea_15.setWidget(self.scrollAreaWidgetContents_15)
+        self.toolBox_5.addItem(self.page_Transaction_5, u"Transaction")
+        self.toolBox_2.addItem(self.page_3, u"DFA")
+        self.page_5 = QWidget()
+        self.page_5.setObjectName(u"page_5")
+        self.toolBox_6 = QToolBox(self.page_5)
+        self.toolBox_6.setObjectName(u"toolBox_6")
+        self.toolBox_6.setGeometry(QRect(60, 0, 611, 261))
+        self.toolBox_6.setFont(font7)
+        self.tool_box_state_6 = QWidget()
+        self.tool_box_state_6.setObjectName(u"tool_box_state_6")
+        self.tool_box_state_6.setGeometry(QRect(0, 0, 611, 180))
+        self.scrollArea_16 = QScrollArea(self.tool_box_state_6)
+        self.scrollArea_16.setObjectName(u"scrollArea_16")
+        self.scrollArea_16.setGeometry(QRect(20, 0, 561, 171))
+        self.scrollArea_16.setWidgetResizable(True)
+        self.scrollAreaWidgetContents_16 = QWidget()
+        self.scrollAreaWidgetContents_16.setObjectName(u"scrollAreaWidgetContents_16")
+        self.scrollAreaWidgetContents_16.setGeometry(QRect(0, 0, 559, 169))
+        self.grb_StateName_14 = QGroupBox(self.scrollAreaWidgetContents_16)
+        self.grb_StateName_14.setObjectName(u"grb_StateName_14")
+        self.grb_StateName_14.setGeometry(QRect(10, 10, 541, 131))
+        self.grb_StateName_14.setFont(font7)
+        self.listWidget_RE_NFATab_StateName = QListWidget(self.grb_StateName_14)
+        self.listWidget_RE_NFATab_StateName.setObjectName(u"listWidget_RE_NFATab_StateName")
+        self.listWidget_RE_NFATab_StateName.setGeometry(QRect(20, 20, 501, 101))
+        self.scrollArea_16.setWidget(self.scrollAreaWidgetContents_16)
+        self.toolBox_6.addItem(self.tool_box_state_6, u"State")
+        self.page_Alphabet_6 = QWidget()
+        self.page_Alphabet_6.setObjectName(u"page_Alphabet_6")
+        self.page_Alphabet_6.setGeometry(QRect(0, 0, 611, 180))
+        self.scrollArea_17 = QScrollArea(self.page_Alphabet_6)
+        self.scrollArea_17.setObjectName(u"scrollArea_17")
+        self.scrollArea_17.setGeometry(QRect(20, 10, 561, 141))
+        self.scrollArea_17.setWidgetResizable(True)
+        self.scrollAreaWidgetContents_17 = QWidget()
+        self.scrollAreaWidgetContents_17.setObjectName(u"scrollAreaWidgetContents_17")
+        self.scrollAreaWidgetContents_17.setGeometry(QRect(0, 0, 559, 139))
+        self.grb_StateName_15 = QGroupBox(self.scrollAreaWidgetContents_17)
+        self.grb_StateName_15.setObjectName(u"grb_StateName_15")
+        self.grb_StateName_15.setGeometry(QRect(10, 10, 541, 121))
+        self.listWidget_RE_NFATab_Alphabet = QListWidget(self.grb_StateName_15)
+        self.listWidget_RE_NFATab_Alphabet.setObjectName(u"listWidget_RE_NFATab_Alphabet")
+        self.listWidget_RE_NFATab_Alphabet.setGeometry(QRect(10, 10, 521, 101))
+        self.scrollArea_17.setWidget(self.scrollAreaWidgetContents_17)
+        self.toolBox_6.addItem(self.page_Alphabet_6, u"Alphabet")
+        self.page_Transaction_6 = QWidget()
+        self.page_Transaction_6.setObjectName(u"page_Transaction_6")
+        self.page_Transaction_6.setGeometry(QRect(0, 0, 611, 180))
+        self.scrollArea_18 = QScrollArea(self.page_Transaction_6)
+        self.scrollArea_18.setObjectName(u"scrollArea_18")
+        self.scrollArea_18.setGeometry(QRect(20, 0, 561, 161))
+        self.scrollArea_18.setWidgetResizable(True)
+        self.scrollAreaWidgetContents_18 = QWidget()
+        self.scrollAreaWidgetContents_18.setObjectName(u"scrollAreaWidgetContents_18")
+        self.scrollAreaWidgetContents_18.setGeometry(QRect(0, 0, 559, 159))
+        self.tableWidget_RE_NFATab_Transaction = QTableWidget(self.scrollAreaWidgetContents_18)
+        if (self.tableWidget_RE_NFATab_Transaction.columnCount() < 3):
+            self.tableWidget_RE_NFATab_Transaction.setColumnCount(3)
+        __qtablewidgetitem12 = QTableWidgetItem()
+        self.tableWidget_RE_NFATab_Transaction.setHorizontalHeaderItem(0, __qtablewidgetitem12)
+        __qtablewidgetitem13 = QTableWidgetItem()
+        self.tableWidget_RE_NFATab_Transaction.setHorizontalHeaderItem(1, __qtablewidgetitem13)
+        __qtablewidgetitem14 = QTableWidgetItem()
+        self.tableWidget_RE_NFATab_Transaction.setHorizontalHeaderItem(2, __qtablewidgetitem14)
+        self.tableWidget_RE_NFATab_Transaction.setObjectName(u"tableWidget_RE_NFATab_Transaction")
+        self.tableWidget_RE_NFATab_Transaction.setGeometry(QRect(0, 0, 581, 181))
+        self.scrollArea_18.setWidget(self.scrollAreaWidgetContents_18)
+        self.toolBox_6.addItem(self.page_Transaction_6, u"Transaction")
+        self.toolBox_2.addItem(self.page_5, u"NFA")
+        self.page_6 = QWidget()
+        self.page_6.setObjectName(u"page_6")
+        self.lbl_result_Are_languages_equvalent = QLabel(self.page_6)
+        self.lbl_result_Are_languages_equvalent.setObjectName(u"lbl_result_Are_languages_equvalent")
+        self.lbl_result_Are_languages_equvalent.setGeometry(QRect(450, 140, 271, 51))
+        self.lbl_result_Are_languages_equvalent.setFont(font6)
+        self.lbl_result_Are_languages_equvalent.setLayoutDirection(Qt.LeftToRight)
+        self.lbl_result_Are_languages_equvalent.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_15 = QLabel(self.page_6)
+        self.label_15.setObjectName(u"label_15")
+        self.label_15.setGeometry(QRect(160, 10, 191, 51))
+        self.label_15.setFont(font1)
+        self.btn_Save_Expression_2 = QPushButton(self.page_6)
+        self.btn_Save_Expression_2.setObjectName(u"btn_Save_Expression_2")
+        self.btn_Save_Expression_2.setGeometry(QRect(320, 80, 111, 31))
+
+        self.btn_Save_Expression_2.clicked.connect(self.on_btn_Save_Expression_2)
+
+        self.txt_Expression_2 = QTextEdit(self.page_6)
+        self.txt_Expression_2.setObjectName(u"txt_Expression_2")
+        self.txt_Expression_2.setEnabled(True)
+        self.txt_Expression_2.setGeometry(QRect(260, 20, 231, 31))
+        self.txt_Expression_2.setFont(font4)
+        self.txt_Expression_2.setMouseTracking(False)
+        self.txt_Expression_2.setAutoFillBackground(False)
+        self.txt_Expression_2.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.txt_Expression_2.setUndoRedoEnabled(True)
+        self.lbl_result_is_there_a_relation = QLabel(self.page_6)
+        self.lbl_result_is_there_a_relation.setObjectName(u"lbl_result_is_there_a_relation")
+        self.lbl_result_is_there_a_relation.setGeometry(QRect(450, 210, 271, 51))
+        self.lbl_result_is_there_a_relation.setFont(font6)
+        self.lbl_result_is_there_a_relation.setLayoutDirection(Qt.LeftToRight)
+        self.lbl_result_is_there_a_relation.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_16 = QLabel(self.page_6)
+        self.label_16.setObjectName(u"label_16")
+        self.label_16.setGeometry(QRect(200, 140, 191, 51))
+        self.label_16.setFont(font1)
+        self.label_19 = QLabel(self.page_6)
+        self.label_19.setObjectName(u"label_19")
+        self.label_19.setGeometry(QRect(200, 210, 191, 51))
+        self.label_19.setFont(font1)
+        self.toolBox_2.addItem(self.page_6, u"Compare languages")
+
+
         self.tabWidget.addTab(self.regular_language_tab, "")
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -854,6 +1134,48 @@ class Ui_MainWindow(object):
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"DFA name: ", None))
         self.btn_Save.setText(QCoreApplication.translate("MainWindow", u"Save", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.DFA_tab), QCoreApplication.translate("MainWindow", u"DFA", None))
+        self.groupBox_3.setTitle("")
+        self.label_5.setText(QCoreApplication.translate("MainWindow", u"Expression:", None))
+#if QT_CONFIG(tooltip)
+        self.txt_Expression_1.setToolTip("")
+#endif // QT_CONFIG(tooltip)
+        self.btn_Save_Expression_1.setText(QCoreApplication.translate("MainWindow", u"Save", None))
+        self.label_14.setText(QCoreApplication.translate("MainWindow", u"Regular language?", None))
+        self.lbl_result_is_regular_language.setText(QCoreApplication.translate("MainWindow", u"Result", None))
+        self.grb_StateName_12.setTitle(QCoreApplication.translate("MainWindow", u"State Name:", None))
+        self.toolBox_5.setItemText(self.toolBox_5.indexOf(self.tool_box_state_5), QCoreApplication.translate("MainWindow", u"State", None))
+        self.grb_StateName_13.setTitle("")
+        self.toolBox_5.setItemText(self.toolBox_5.indexOf(self.page_Alphabet_5), QCoreApplication.translate("MainWindow", u"Alphabet", None))
+        ___qtablewidgetitem9 = self.tableWidget_RE_DFATab_Transaction.horizontalHeaderItem(0)
+        ___qtablewidgetitem9.setText(QCoreApplication.translate("MainWindow", u"Transaction", None));
+        ___qtablewidgetitem10 = self.tableWidget_RE_DFATab_Transaction.horizontalHeaderItem(1)
+        ___qtablewidgetitem10.setText(QCoreApplication.translate("MainWindow", u"Current state", None));
+        ___qtablewidgetitem11 = self.tableWidget_RE_DFATab_Transaction.horizontalHeaderItem(2)
+        ___qtablewidgetitem11.setText(QCoreApplication.translate("MainWindow", u"Target state", None));
+        self.toolBox_5.setItemText(self.toolBox_5.indexOf(self.page_Transaction_5), QCoreApplication.translate("MainWindow", u"Transaction", None))
+        self.toolBox_2.setItemText(self.toolBox_2.indexOf(self.page_3), QCoreApplication.translate("MainWindow", u"DFA", None))
+        self.grb_StateName_14.setTitle(QCoreApplication.translate("MainWindow", u"State Name:", None))
+        self.toolBox_6.setItemText(self.toolBox_6.indexOf(self.tool_box_state_6), QCoreApplication.translate("MainWindow", u"State", None))
+        self.grb_StateName_15.setTitle("")
+        self.toolBox_6.setItemText(self.toolBox_6.indexOf(self.page_Alphabet_6), QCoreApplication.translate("MainWindow", u"Alphabet", None))
+        ___qtablewidgetitem12 = self.tableWidget_RE_NFATab_Transaction.horizontalHeaderItem(0)
+        ___qtablewidgetitem12.setText(QCoreApplication.translate("MainWindow", u"Transaction", None));
+        ___qtablewidgetitem13 = self.tableWidget_RE_NFATab_Transaction.horizontalHeaderItem(1)
+        ___qtablewidgetitem13.setText(QCoreApplication.translate("MainWindow", u"Current state", None));
+        ___qtablewidgetitem14 = self.tableWidget_RE_NFATab_Transaction.horizontalHeaderItem(2)
+        ___qtablewidgetitem14.setText(QCoreApplication.translate("MainWindow", u"Target state", None));
+        self.toolBox_6.setItemText(self.toolBox_6.indexOf(self.page_Transaction_6), QCoreApplication.translate("MainWindow", u"Transaction", None))
+        self.toolBox_2.setItemText(self.toolBox_2.indexOf(self.page_5), QCoreApplication.translate("MainWindow", u"NFA", None))
+        self.lbl_result_Are_languages_equvalent.setText(QCoreApplication.translate("MainWindow", u"Result", None))
+        self.label_15.setText(QCoreApplication.translate("MainWindow", u"Expression 2:", None))
+        self.btn_Save_Expression_2.setText(QCoreApplication.translate("MainWindow", u"Save", None))
+#if QT_CONFIG(tooltip)
+        self.txt_Expression_2.setToolTip("")
+#endif // QT_CONFIG(tooltip)
+        self.lbl_result_is_there_a_relation.setText(QCoreApplication.translate("MainWindow", u"Result", None))
+        self.label_16.setText(QCoreApplication.translate("MainWindow", u"Are languages \u200b\u200bequivalent?", None))
+        self.label_19.setText(QCoreApplication.translate("MainWindow", u"Is there a relation?", None))
+        self.toolBox_2.setItemText(self.toolBox_2.indexOf(self.page_6), QCoreApplication.translate("MainWindow", u"Compare languages", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.regular_language_tab), QCoreApplication.translate("MainWindow", u"Regular Language", None))
     # retranslateUi
 
