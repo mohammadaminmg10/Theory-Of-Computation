@@ -1,6 +1,4 @@
-import re
-
-
+from dfa import Dfa
 class DFA:
     def __init__(self, states, alphabet, transitions, start_state, accept_states):
         self.states = states
@@ -80,16 +78,6 @@ class RegularExpressionAnalyzer:
         def _concatenate_nfas(nfa1, nfa2):
             new_start = nfa1.start_state
             new_accept = nfa2.accept_states
-            # for state in nfa1.transitions:
-            #     if state != 'ε':
-            #         for symbol in nfa1.transitions[state]:
-            #             if symbol != 'ε':
-            #                 nfa1.transitions[state][symbol] = [state + suffix for suffix in nfa1.transitions[state][symbol]]
-            # for state in nfa2.transitions:
-            #     if state != 'ε':
-            #         for symbol in nfa2.transitions[state]:
-            #             if symbol != 'ε':
-            #                 nfa2.transitions[state][symbol] = [state + suffix for suffix in nfa2.transitions[state][symbol]]
 
             for state in nfa1.accept_states:
                 if 'ε' not in nfa1.transitions[state]:
@@ -183,17 +171,10 @@ class RegularExpressionAnalyzer:
             elif char == '+':
                 # this means we should have at least 1 expression of its previous expression; shuch as (ab)+
                 nfa = stack.pop()
-                # start_state = _create_state()
-                # accept_state = _create_state()
-                # transitions = {
-                #     start_state: {},
-                #     accept_state: {}
-                # }
 
                 for state in nfa.accept_states:
                     if 'ε' not in nfa.transitions[state]:
                         nfa.transitions[state]['ε'] = [nfa.start_state]
-                    # nfa.transitions[state]['ε'].extend([nfa.start_state, accept_state])
                 transitions[start_state]['ε'] = [nfa.start_state, accept_state]
 
                 new_nfa = NFA(
@@ -280,8 +261,11 @@ class RegularExpressionAnalyzer:
         dfa1 = self.to_dfa(expression1)  # Convert expression1 to a Dfa object
         dfa2 = self.to_dfa(expression2)  # Convert expression2 to a Dfa object
 
+        minimized_dfa1 = dfa1.minimize()
+        minimized_dfa2 = dfa2.minimize()
         # Use are_equivalent method from the Dfa class to compare languages
-        return dfa1.are_equivalent(dfa2)
+        
+        return minimized_dfa1.are_equivalent(minimized_dfa2)
 
     def is_relation(self, expression1, expression2):
         if self.is_subset(expression1, expression2) or self.is_subset(expression2, expression1):
@@ -291,7 +275,17 @@ class RegularExpressionAnalyzer:
         dfa1 = self.to_dfa(expression1)
         dfa2 = self.to_dfa(expression2)
 
-        for string in dfa1.all_strings():
-            if not dfa2.accepts_string(string):
-                return False
-        return True
+        def are_dfas_subsets(dfa1, dfa2):
+            state_mapping = {state1: state2 for state1, state2 in zip(dfa1.states, dfa2.states)}
+            if set(dfa1.alphabet) <= set(dfa2.alphabet):
+                if all(
+                    state_mapping[state1] in dfa2.transitions and symbol in dfa2.transitions[state_mapping[state1]]
+                    for state1 in dfa1.transitions
+                    for symbol in dfa1.transitions[state1]
+                ):
+                    if state_mapping[dfa1.start_state] in dfa2.states:
+                        if set(state_mapping[state1] for state1 in dfa1.accept_states) <= set(dfa2.states):
+                            return True
+
+            return False
+        return are_dfas_subsets(dfa1, dfa2)
