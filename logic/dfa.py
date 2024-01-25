@@ -177,13 +177,13 @@ class Dfa:
                             next_group = None
                             for eq_group in equivalent_groups:
                                 if state_trans in eq_group:
-                                    next_group = eq_group
+                                    next_group = sorted(eq_group)
                                     break
                             if next_group:
                                 next_state = ",".join(next_group)
                                 break
                     if next_state:
-                        new_transitions[(",".join(group), symbol)] = next_state
+                        new_transitions[(",".join(sorted(group)), symbol)] = next_state
 
             self.start_state = new_start_state
             self.transitions = new_transitions
